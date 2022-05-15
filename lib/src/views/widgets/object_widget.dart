@@ -132,55 +132,59 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
   Widget build(BuildContext context) {
     final drawables = this.drawables;
     return LayoutBuilder(builder: (context, constraints) {
-      return Stack(
-        children: [
-          Positioned.fill(child: GestureDetector(onTap: onBackgroundTapped, child: widget.child)),
-          ...drawables.asMap().entries.map(
-            (entry) {
-              if (entry.value != controller?.selectedObjectDrawable) {
-                return Container(key: Key(entry.key.toString()), child: buildStackEntry(entry, constraints));
+      return GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: onBackgroundTapped,
+        onScaleStart: true
+            ? (details) {
+                if (_currentScaleEntry != null) {
+                  print("start1");
+                  onDrawableScaleStart(_currentScaleEntry!, details);
+                }
               }
-            },
-          ).whereType<Widget>(),
-          ...drawables.asMap().entries.map(
-            (entry) {
-              if (entry.value == controller?.selectedObjectDrawable) {
-                return Container(key: Key(entry.key.toString()), child: buildStackEntry(entry, constraints));
+            : (details) => print("start2"),
+        onScaleUpdate: true
+            ? (details) {
+                if (_currentScaleEntry != null) {
+                  print("update1");
+                  onDrawableScaleUpdate(_currentScaleEntry!, details);
+                }
               }
-            },
-          ).whereType<Widget>(),
-          // if(selectedDrawableIndex != null)
-          //   ...[
-          //     Positioned(
-          //
-          //       child: Container(
-          //         decoration: BoxDecoration(
-          //             border:  Border.all(
-          //               color: Colors.white,
-          //               width: 2,
-          //             ),
-          //             boxShadow: [
-          //               BorderBoxShadow(
-          //                 color: Colors.black,
-          //                 blurRadius: 1,
-          //               )
-          //             ]
-          //         ),
-          //         width: size.width,
-          //         height: size.height,
-          //       ),
-          //     )
-          //   ]
-        ],
+            : (details) => print("update2"),
+        // Allow other gesture detectors to handle when null
+        child: Stack(
+          children: [
+            Positioned.fill(child: widget.child),
+            ...drawables.asMap().entries.map(
+              (entry) {
+                if (entry.value != controller?.selectedObjectDrawable) {
+                  return Container(key: Key(entry.key.toString()), child: buildStackEntry(entry, constraints));
+                }
+              },
+            ).whereType<Widget>(),
+            ...drawables.asMap().entries.map(
+              (entry) {
+                if (entry.value == controller?.selectedObjectDrawable) {
+                  return Container(key: Key(entry.key.toString()), child: buildStackEntry(entry, constraints));
+                }
+              },
+            ).whereType<Widget>(),
+          ],
+        ),
       );
     });
   }
 
+  MapEntry<int, ObjectDrawable>? _currentScaleEntry;
+
   Widget buildStackEntry(MapEntry<int, ObjectDrawable> entry, BoxConstraints constraints) {
     final drawable = entry.value;
     final selected = drawable == controller?.selectedObjectDrawable;
+    if (selected) {
+      _currentScaleEntry = entry;
+    }
     final size = drawable.getSize(maxWidth: constraints.maxWidth);
-    final double objectPadding = selected ? 2000 : this.objectPadding;
+    //final double objectPadding = selected ? 2000 : this.objectPadding;
     final widget = Padding(
       padding: EdgeInsets.all(objectPadding),
       child: SizedBox(
@@ -206,6 +210,32 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                     behavior: HitTestBehavior.deferToChild,
                     onPointerDown: (_) {
                       _pointers++;
+                      print("pointers" + _pointers.toString());
+                      if (controller?.selectedObjectDrawable == null) {
+                        print("selected");
+                        setState(() {
+                          controller?.selectObjectDrawable(entry.value);
+                          _currentScaleEntry = entry;
+                          print("_currentScaleEntry set to entry");
+                        });
+                      }
+                    },
+                    onPointerCancel: (_) {
+                      _pointers--;
+                      print("pointers" + _pointers.toString());
+                      if (_pointers == 0) {
+                        setState(() {
+                          print("deselected");
+                          controller?.deselectObjectDrawable();
+                          if (_currentScaleEntry != null) {
+                            final drawable = onDrawableScaleEnd(_currentScaleEntry!);
+                            controller?.removeDrawable(drawable, newAction: true);
+                            controller?.addDrawables([drawable], newAction: false);
+                            _currentScaleEntry = null;
+                            print("_currentScaleEntry set to null");
+                          }
+                        });
+                      }
                     },
                     onPointerUp: (_) {
                       _pointers--;
@@ -214,15 +244,19 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                         setState(() {
                           print("deselected");
                           controller?.deselectObjectDrawable();
+                          if (_currentScaleEntry != null) {
+                            final newDrawable = onDrawableScaleEnd(_currentScaleEntry!);
+                            controller?.removeDrawable(newDrawable, newAction: true);
+                            controller?.addDrawables([newDrawable], newAction: false);
+                            _currentScaleEntry = null;
+                            print("_currentScaleEntry set to null");
+                          }
                         });
                       }
                     },
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () => tapDrawable(drawable),
-                      onScaleStart: (details) => onDrawableScaleStart(entry, details),
-                      onScaleUpdate: (details) => onDrawableScaleUpdate(entry, details),
-                      onScaleEnd: (_) => onDrawableScaleEnd(entry),
                       child: AnimatedSwitcher(
                         duration: controlsTransitionDuration,
                         child: selected
@@ -435,12 +469,11 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
       ObjectDrawableReselectedNotification(drawable).dispatch(context);
     } else {
       SelectedObjectDrawableUpdatedNotification(drawable).dispatch(context);
+      if (drawable is TextDrawable) {
+        ObjectDrawableReselectedNotification(drawable.copyWith(assists: {}))
+            .dispatch(context); // todo this becomes the object tapped notification
+      }
     }
-
-    setState(() {
-      // selectedDrawableIndex = drawables.indexOf(drawable);
-      controller?.selectObjectDrawable(drawable);
-    });
   }
 
   /// Callback when the object drawable starts being moved, scaled and/or rotated.
@@ -454,11 +487,6 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
 
     if (index < 0 || drawable.locked) return;
 
-    setState(() {
-      // selectedDrawableIndex = index;
-      controller?.selectObjectDrawable(entry.value);
-    });
-
     initialScaleDrawables[index] = drawable;
 
     // When the gesture detector is rotated, the hit test details are not transformed with it
@@ -466,8 +494,9 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
     // So, a [Matrix4] is used to transform the needed event details to be consistent with
     // the current rotation of the object
     final rotateOffset = Matrix4.rotationZ(drawable.rotationAngle)
-      ..translate(details.localFocalPoint.dx, details.localFocalPoint.dy)
-      ..rotateZ(-drawable.rotationAngle);
+      ..rotateZ(-drawable.rotationAngle)
+      ..translate(details.localFocalPoint.dx, details.localFocalPoint.dy);
+
     drawableInitialLocalFocalPoints[index] = Offset(rotateOffset[12], rotateOffset[13]);
 
     updateDrawable(drawable, drawable, newAction: true);
@@ -476,8 +505,8 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
   /// Callback when the object drawable finishes movement, scaling and rotation.
   ///
   /// Cleans up the object information.
-  void onDrawableScaleEnd(MapEntry<int, ObjectDrawable> entry) {
-    if (!widget.interactionEnabled) return;
+  ObjectDrawable onDrawableScaleEnd(MapEntry<int, ObjectDrawable> entry) {
+    if (!widget.interactionEnabled) return entry.value;
 
     final index = entry.key;
 
@@ -500,6 +529,8 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
     final newDrawable = drawable.copyWith(assists: {});
 
     updateDrawable(drawable, newDrawable);
+
+    return newDrawable;
   }
 
   /// Callback when the object drawable is moved, scaled and/or rotated.
@@ -530,8 +561,8 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
     // the current rotation of the object
     final rotateOffset = Matrix4.identity()
       ..rotateZ(initialRotation)
-      ..translate(details.localFocalPoint.dx, details.localFocalPoint.dy)
-      ..rotateZ(-initialRotation);
+      ..rotateZ(-initialRotation)
+      ..translate(details.localFocalPoint.dx, details.localFocalPoint.dy);
     final position = initialPosition + Offset(rotateOffset[12], rotateOffset[13]);
 
     // Calculate scale of object reference to the initial object scale

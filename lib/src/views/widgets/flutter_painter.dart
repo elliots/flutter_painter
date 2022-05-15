@@ -25,8 +25,11 @@ import 'painter_controller_widget.dart';
 import 'dart:math' as math;
 
 part 'free_style_widget.dart';
+
 part 'text_widget.dart';
+
 part 'object_widget.dart';
+
 part 'shape_widget.dart';
 
 typedef DrawableCreatedCallback = Function(Drawable drawable);
@@ -34,8 +37,7 @@ typedef DrawableCreatedCallback = Function(Drawable drawable);
 typedef DrawableDeletedCallback = Function(Drawable drawable);
 
 /// Defines the builder used with [FlutterPainter.builder] constructor.
-typedef FlutterPainterBuilderCallback = Widget Function(
-    BuildContext context, Widget painter);
+typedef FlutterPainterBuilderCallback = Widget Function(BuildContext context, Widget painter);
 
 /// Widget that allows user to draw on it
 class FlutterPainter extends StatelessWidget {
@@ -103,8 +105,7 @@ class FlutterPainter extends StatelessWidget {
                   onDrawableCreated: onDrawableCreated,
                   onDrawableDeleted: onDrawableDeleted,
                   onPainterSettingsChanged: onPainterSettingsChanged,
-                  onSelectedObjectDrawableChanged:
-                      onSelectedObjectDrawableChanged,
+                  onSelectedObjectDrawableChanged: onSelectedObjectDrawableChanged,
                 ));
           }),
     );
@@ -133,6 +134,8 @@ class _FlutterPainterWidget extends StatelessWidget {
   /// Callback when the [PainterSettings] of [PainterController] are updated internally.
   final ValueChanged<PainterSettings>? onPainterSettingsChanged;
 
+  final Object? _currentScaleEntry = null;
+
   /// Creates a [_FlutterPainterWidget] with the given [controller] and optional callbacks.
   const _FlutterPainterWidget(
       {Key? key,
@@ -151,38 +154,36 @@ class _FlutterPainterWidget extends StatelessWidget {
             opaque: false,
             pageBuilder: (context, animation, secondaryAnimation) {
               final controller = PainterController.of(context);
-              return NotificationListener<FlutterPainterNotification>(
-                onNotification: onNotification,
-                child: InteractiveViewer(
-                  transformationController: controller.transformationController,
-                  minScale: controller.settings.scale.enabled
-                      ? controller.settings.scale.minScale
-                      : 1,
-                  maxScale: controller.settings.scale.enabled
-                      ? controller.settings.scale.maxScale
-                      : 1,
-                  panEnabled: controller.settings.scale.enabled &&
-                      (controller.freeStyleSettings.mode == FreeStyleMode.none),
-                  scaleEnabled: controller.settings.scale.enabled,
-                  child: _FreeStyleWidget(
-                      // controller: controller,
-                      child: _TextWidget(
+              Widget child = _FreeStyleWidget(
+                  // controller: controller,
+                  child: _TextWidget(
+                // controller: controller,
+                child: _ShapeWidget(
+                  // controller: controller,
+                  child: _ObjectWidget(
                     // controller: controller,
-                    child: _ShapeWidget(
-                      // controller: controller,
-                      child: _ObjectWidget(
-                        // controller: controller,
-                        interactionEnabled: true,
-                        child: CustomPaint(
-                          painter: Painter(
-                            drawables: controller.value.drawables,
-                            background: controller.value.background,
-                          ),
-                        ),
+                    interactionEnabled: true,
+                    child: CustomPaint(
+                      painter: Painter(
+                        drawables: controller.value.drawables,
+                        background: controller.value.background,
                       ),
                     ),
-                  )),
+                  ),
                 ),
+              ));
+              return NotificationListener<FlutterPainterNotification>(
+                onNotification: onNotification,
+                child: controller.selectedObjectDrawable == null || true
+                    ? InteractiveViewer(
+                        transformationController: controller.transformationController,
+                        minScale: controller.settings.scale.enabled ? controller.settings.scale.minScale : 1,
+                        maxScale: controller.settings.scale.enabled ? controller.settings.scale.maxScale : 1,
+                        panEnabled: controller.settings.scale.enabled &&
+                            (controller.freeStyleSettings.mode == FreeStyleMode.none),
+                        scaleEnabled: controller.settings.scale.enabled,
+                        child: child)
+                    : child,
               );
             }));
   }

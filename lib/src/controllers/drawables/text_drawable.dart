@@ -18,10 +18,13 @@ class TextDrawable extends ObjectDrawable {
   // A text painter which will paint the text on the canvas.
   final TextPainter textPainter;
 
+  final Key key;
+
   /// Creates a [TextDrawable] to draw [text].
   ///
   /// The path will be drawn with the passed [style] if provided.
   TextDrawable({
+    required this.key,
     required this.text,
     required Offset position,
     double rotation = 0,
@@ -74,6 +77,7 @@ class TextDrawable extends ObjectDrawable {
     TextDirection? direction,
   }) {
     return TextDrawable(
+      key: key,
       text: text ?? this.text,
       position: position ?? this.position,
       rotation: rotation ?? rotationAngle,
