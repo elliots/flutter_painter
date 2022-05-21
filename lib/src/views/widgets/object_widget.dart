@@ -229,7 +229,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                           controller?.deselectObjectDrawable();
                           if (_currentScaleEntry != null) {
                             final drawable = onDrawableScaleEnd(_currentScaleEntry!);
-                            controller?.removeDrawable(drawable, newAction: true);
+                            controller?.removeDrawable(drawable, newAction: false);
                             controller?.addDrawables([drawable], newAction: false);
                             _currentScaleEntry = null;
                             print("_currentScaleEntry set to null");
@@ -246,7 +246,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                           controller?.deselectObjectDrawable();
                           if (_currentScaleEntry != null) {
                             final newDrawable = onDrawableScaleEnd(_currentScaleEntry!);
-                            controller?.removeDrawable(newDrawable, newAction: true);
+                            controller?.removeDrawable(newDrawable, newAction: false);
                             controller?.addDrawables([newDrawable], newAction: false);
                             _currentScaleEntry = null;
                             print("_currentScaleEntry set to null");

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'object_drawable.dart';
 
+final TEXT_EDITOR_HORIZONTAL_PADDING = 128;
+
 /// Text Drawable
 class TextDrawable extends ObjectDrawable {
   /// The text to be drawn.
@@ -55,12 +57,11 @@ class TextDrawable extends ObjectDrawable {
   @override
   void drawObject(Canvas canvas, Size size) {
     // Render the text according to the size of the canvas taking the scale in mind
-    textPainter.layout(maxWidth: size.width * scale);
+    textPainter.layout(maxWidth: size.width * scale - TEXT_EDITOR_HORIZONTAL_PADDING);
 
     // Paint the text on the canvas
     // It is shifted back by half of its width and height to be drawn in the center
-    textPainter.paint(canvas,
-        position - Offset(textPainter.width / 2, textPainter.height / 2));
+    textPainter.paint(canvas, position - Offset(textPainter.width / 2, textPainter.height / 2));
   }
 
   /// Creates a copy of this but with the given fields replaced with the new values.
@@ -94,28 +95,28 @@ class TextDrawable extends ObjectDrawable {
   @override
   Size getSize({double minWidth = 0.0, double maxWidth = double.infinity}) {
     // Generate the text as a visual layout
-    textPainter.layout(minWidth: minWidth, maxWidth: maxWidth * scale);
+    textPainter.layout(minWidth: minWidth, maxWidth: maxWidth * scale - TEXT_EDITOR_HORIZONTAL_PADDING);
     return textPainter.size;
   }
 
   /// Compares two [TextDrawable]s for equality.
-  // @override
-  // bool operator ==(Object other) {
-  //   return other is TextDrawable &&
-  //       super == other &&
-  //       other.text == text &&
-  //       other.style == style &&
-  //       other.direction == direction;
-  // }
-  //
-  // @override
-  // int get hashCode => hashValues(
-  //     hidden,
-  //     hashList(assists),
-  //     hashList(assistPaints.entries),
-  //     position,
-  //     rotationAngle,
-  //     scale,
-  //     style,
-  //     direction);
+// @override
+// bool operator ==(Object other) {
+//   return other is TextDrawable &&
+//       super == other &&
+//       other.text == text &&
+//       other.style == style &&
+//       other.direction == direction;
+// }
+//
+// @override
+// int get hashCode => hashValues(
+//     hidden,
+//     hashList(assists),
+//     hashList(assistPaints.entries),
+//     position,
+//     rotationAngle,
+//     scale,
+//     style,
+//     direction);
 }
