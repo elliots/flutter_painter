@@ -91,7 +91,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
               paint: shapePaint,
             ),
             scale: const ScaleSettings(
-              enabled: true,
+              enabled: false,
               minScale: 1,
               maxScale: 5,
             )));

@@ -175,16 +175,15 @@ class _FlutterPainterWidget extends StatelessWidget {
               ));
               return NotificationListener<FlutterPainterNotification>(
                 onNotification: onNotification,
-                child: controller.selectedObjectDrawable == null || true
-                    ? InteractiveViewer(
-                        transformationController: controller.transformationController,
-                        minScale: controller.settings.scale.enabled ? controller.settings.scale.minScale : 1,
-                        maxScale: controller.settings.scale.enabled ? controller.settings.scale.maxScale : 1,
-                        panEnabled: controller.settings.scale.enabled &&
-                            (controller.freeStyleSettings.mode == FreeStyleMode.none),
-                        scaleEnabled: controller.settings.scale.enabled,
-                        child: child)
-                    : child,
+                child: InteractiveViewer(
+                  transformationController: controller.transformationController,
+                  minScale: controller.settings.scale.enabled ? controller.settings.scale.minScale : 1,
+                  maxScale: controller.settings.scale.enabled ? controller.settings.scale.maxScale : 1,
+                  panEnabled:
+                      controller.settings.scale.enabled && (controller.freeStyleSettings.mode == FreeStyleMode.none),
+                  scaleEnabled: controller.settings.scale.enabled,
+                  child: controller.settings.scale.enabled ? IgnorePointer(child: child) : child,
+                ),
               );
             }));
   }

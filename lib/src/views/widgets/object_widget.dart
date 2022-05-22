@@ -93,6 +93,12 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
   /// pointers
   int _pointers = 0;
 
+  Offset lastPointerPosition = const Offset(0, 0);
+
+  GlobalKey trashKey = GlobalKey();
+
+  bool trashCanHighlighted = false;
+
   @override
   void initState() {
     super.initState();
@@ -169,6 +175,38 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                 }
               },
             ).whereType<Widget>(),
+            _pointers != 0
+                ? Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Material(
+                      key: trashKey,
+                      borderRadius: BorderRadius.circular(100),
+                      color: Colors.black54,
+                      child: Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: Builder(builder: (context) {
+                          trashCanHighlighted = false;
+                          RenderBox? box = trashKey.currentContext?.findRenderObject() as RenderBox?;
+                          if (box == null) {
+                            return Container();
+                          }
+                          Offset position = box.localToGlobal(Offset(box.size.width/2,box.size.height/2)); //this is global position
+                          Color iconColor = Colors.white;
+                          print(position.dy);
+                          if ((position.dy - lastPointerPosition.dy).abs() < box.size.height/1) {
+                            if ((position.dx - lastPointerPosition.dx).abs() < box.size.width/1) {
+                              iconColor = Colors.red;
+                              trashCanHighlighted = true;
+                            }
+                          }
+                          return Icon(
+                            Icons.delete_outline_rounded,
+                            color: iconColor,
+                          );
+                        }),
+                      ),
+                    ))
+                : Container(),
           ],
         ),
       );
@@ -229,6 +267,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                           controller?.deselectObjectDrawable();
                           if (_currentScaleEntry != null) {
                             final drawable = onDrawableScaleEnd(_currentScaleEntry!);
+                            if (drawable == null) return;
                             controller?.removeDrawable(drawable, newAction: false);
                             controller?.addDrawables([drawable], newAction: false);
                             _currentScaleEntry = null;
@@ -246,12 +285,20 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                           controller?.deselectObjectDrawable();
                           if (_currentScaleEntry != null) {
                             final newDrawable = onDrawableScaleEnd(_currentScaleEntry!);
+                            if (newDrawable == null) return;
                             controller?.removeDrawable(newDrawable, newAction: false);
                             controller?.addDrawables([newDrawable], newAction: false);
                             _currentScaleEntry = null;
                             print("_currentScaleEntry set to null");
                           }
                         });
+                      }
+                    },
+                    onPointerMove: (details) {
+                      if (_pointers > 1) {
+                        lastPointerPosition = Offset.zero;
+                      } else {
+                        lastPointerPosition = details.position;
                       }
                     },
                     child: GestureDetector(
@@ -505,7 +552,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
   /// Callback when the object drawable finishes movement, scaling and rotation.
   ///
   /// Cleans up the object information.
-  ObjectDrawable onDrawableScaleEnd(MapEntry<int, ObjectDrawable> entry) {
+  ObjectDrawable? onDrawableScaleEnd(MapEntry<int, ObjectDrawable> entry) {
     if (!widget.interactionEnabled) return entry.value;
 
     final index = entry.key;
@@ -527,8 +574,14 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
 
     // Remove any assist lines the object has
     final newDrawable = drawable.copyWith(assists: {});
-
-    updateDrawable(drawable, newDrawable);
+    if (trashCanHighlighted) {
+      setState(() {
+        PainterController.of(context).removeDrawable(drawable, newAction: false);
+      });
+      return null;
+    } else {
+      updateDrawable(drawable, newDrawable);
+    }
 
     return newDrawable;
   }

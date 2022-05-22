@@ -57,7 +57,17 @@ class TextDrawable extends ObjectDrawable {
   @override
   void drawObject(Canvas canvas, Size size) {
     // Render the text according to the size of the canvas taking the scale in mind
-    textPainter.layout(maxWidth: size.width * scale - TEXT_EDITOR_HORIZONTAL_PADDING);
+    textPainter.layout(maxWidth: size.width * scale - TEXT_EDITOR_HORIZONTAL_PADDING * scale);
+
+    // Background fill color
+    TextPainter textPainterBackground = TextPainter(
+      text: TextSpan(text: text, style: TextStyle(backgroundColor: style.background?.color, color: Colors.transparent, fontSize: style.fontSize, fontFamily: style.fontFamily)),
+      textAlign: TextAlign.center,
+      textScaleFactor: scale,
+      textDirection: direction,
+    );
+    textPainterBackground.layout(maxWidth: size.width * scale - TEXT_EDITOR_HORIZONTAL_PADDING * scale);
+    textPainterBackground.paint(canvas, position - Offset(textPainter.width / 2, textPainter.height / 2));
 
     // Paint the text on the canvas
     // It is shifted back by half of its width and height to be drawn in the center
@@ -95,7 +105,7 @@ class TextDrawable extends ObjectDrawable {
   @override
   Size getSize({double minWidth = 0.0, double maxWidth = double.infinity}) {
     // Generate the text as a visual layout
-    textPainter.layout(minWidth: minWidth, maxWidth: maxWidth * scale - TEXT_EDITOR_HORIZONTAL_PADDING);
+    textPainter.layout(minWidth: minWidth, maxWidth: maxWidth * scale - TEXT_EDITOR_HORIZONTAL_PADDING * scale);
     return textPainter.size;
   }
 
