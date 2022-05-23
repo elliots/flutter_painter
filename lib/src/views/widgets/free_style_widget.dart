@@ -86,6 +86,16 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
 
       // Add the drawable to the controller's drawables
       PainterController.of(context).addDrawables([drawable]);
+    } else if (painterMode == PainterMode.inkFreehand) {
+      drawable = InkFreehandDrawable(
+        path: [_globalToLocal(globalPosition)],
+        color: settings.color,
+        strokeWidth: settings.strokeWidth,
+      );
+
+      // Add the drawable to the controller's drawables
+      PainterController.of(context).addDrawables([drawable]);
+
     } else {
       return;
     }

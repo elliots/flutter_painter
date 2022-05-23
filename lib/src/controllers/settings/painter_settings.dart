@@ -18,6 +18,9 @@ enum PainterMode {
   /// Free-style painting is enabled in pencil mode; used to create pencil drawings.
   pencil,
 
+  /// Free-style painting is enabled in ink freehand mode; used to create drawings.
+  inkFreehand,
+
   /// Free-style painting is enabled in erasing mode; used to erase drawings.
   erase,
 
@@ -29,6 +32,8 @@ extension PainterModeExtension on PainterMode {
       case PainterMode.pen:
         return true;
       case PainterMode.pencil:
+        return true;
+      case PainterMode.inkFreehand:
         return true;
       case PainterMode.erase:
         return true;

@@ -79,16 +79,4 @@ class PencilDrawable extends PathDrawable {
     // Draw the path on the canvas
     canvas.drawPath(path, paint);
   }
-/// Compares two [FreeStyleDrawable]s for equality.
-// @override
-// bool operator ==(Object other) {
-//   return other is FreeStyleDrawable &&
-//       super == other &&
-//       other.color == color &&
-//       other.strokeWidth == strokeWidth &&
-//       ListEquality().equals(other.path, path);
-// }
-//
-// @override
-// int get hashCode => hashValues(hidden, hashList(path), color, strokeWidth);
 }
