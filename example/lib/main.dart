@@ -91,7 +91,6 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
               paint: shapePaint,
             ),
             scale: const ScaleSettings(
-              enabled: false,
               minScale: 1,
               maxScale: 5,
             )));
@@ -213,8 +212,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            if (controller.freeStyleMode !=
-                                FreeStyleMode.none) ...[
+                            if (controller.painterMode.isAFreestyleMode) ...[
                               const Divider(),
                               const Text("Free Style Settings"),
                               // Control free style stroke width
@@ -232,8 +230,8 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
                                   ),
                                 ],
                               ),
-                              if (controller.freeStyleMode ==
-                                  FreeStyleMode.pencil)
+                              if (controller.painterMode ==
+                                  PainterMode.pencil)
                                 Row(
                                   children: [
                                     const Expanded(
@@ -392,11 +390,31 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
           builder: (context, _, __) => Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              // Zoom
+              IconButton(
+                icon: Icon(
+                  PhosphorIcons.handGrabbing,
+                  color: controller.painterMode == PainterMode.zoom
+                      ? Theme.of(context).accentColor
+                      : null,
+                ),
+                onPressed: () => controller.painterMode = PainterMode.zoom,
+              ),
+              // Select
+              IconButton(
+                icon: Icon(
+                  PhosphorIcons.handPointing,
+                  color: controller.painterMode == PainterMode.select
+                      ? Theme.of(context).accentColor
+                      : null,
+                ),
+                onPressed: () => controller.painterMode = PainterMode.select,
+              ),
               // Free-style eraser
               IconButton(
                 icon: Icon(
                   PhosphorIcons.eraser,
-                  color: controller.freeStyleMode == FreeStyleMode.erase
+                  color: controller.painterMode == PainterMode.erase
                       ? Theme.of(context).accentColor
                       : null,
                 ),
@@ -406,7 +424,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
               IconButton(
                 icon: Icon(
                   PhosphorIcons.scribbleLoop,
-                  color: controller.freeStyleMode == FreeStyleMode.pencil
+                  color: controller.painterMode == PainterMode.pencil
                       ? Theme.of(context).accentColor
                       : null,
                 ),
@@ -503,25 +521,28 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
   }
 
   void toggleFreeStyleDraw() {
-    controller.freeStyleMode = controller.freeStyleMode != FreeStyleMode.pencil
-        ? FreeStyleMode.pencil
-        : FreeStyleMode.none;
+    controller.painterMode = controller.painterMode != PainterMode.pencil
+        ? PainterMode.pencil
+        : PainterMode.select;
   }
 
   void toggleFreeStyleErase() {
-    controller.freeStyleMode = controller.freeStyleMode != FreeStyleMode.erase
-        ? FreeStyleMode.erase
-        : FreeStyleMode.none;
+    controller.painterMode = controller.painterMode != PainterMode.erase
+        ? PainterMode.erase
+        : PainterMode.select;
   }
 
   void addText() {
-    if (controller.freeStyleMode != FreeStyleMode.none) {
-      controller.freeStyleMode = FreeStyleMode.none;
+    if (controller.painterMode != PainterMode.select) {
+      controller.painterMode = PainterMode.select;
     }
     controller.addText();
   }
 
   void addSticker() async {
+    if (controller.painterMode != PainterMode.select) {
+      controller.painterMode = PainterMode.select;
+    }
     final imageLink = await showDialog<String>(
         context: context,
         builder: (context) => const SelectStickerImageDialog(
@@ -562,6 +583,9 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
   }
 
   void selectShape(ShapeFactory? factory) {
+    if (controller.painterMode != PainterMode.select) {
+      controller.painterMode = PainterMode.select;
+    }
     controller.shapeFactory = factory;
   }
 

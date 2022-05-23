@@ -10,9 +10,12 @@ class _ObjectWidget extends StatefulWidget {
   /// If `false`, objects won't be movable, scalable or rotatable.
   final bool interactionEnabled;
 
+  final GlobalKey trashKey;
+
   /// Creates a [_ObjectWidget] with the given [controller], [child] widget.
   const _ObjectWidget({
     Key? key,
+    required this.trashKey,
     required this.child,
     this.interactionEnabled = true,
   }) : super(key: key);
@@ -95,10 +98,6 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
 
   Offset lastPointerPosition = const Offset(0, 0);
 
-  GlobalKey trashKey = GlobalKey();
-
-  bool trashCanHighlighted = false;
-
   @override
   void initState() {
     super.initState();
@@ -175,38 +174,6 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                 }
               },
             ).whereType<Widget>(),
-            _pointers != 0
-                ? Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Material(
-                      key: trashKey,
-                      borderRadius: BorderRadius.circular(100),
-                      color: Colors.black54,
-                      child: Padding(
-                        padding: const EdgeInsets.all(6),
-                        child: Builder(builder: (context) {
-                          trashCanHighlighted = false;
-                          RenderBox? box = trashKey.currentContext?.findRenderObject() as RenderBox?;
-                          if (box == null) {
-                            return Container();
-                          }
-                          Offset position = box.localToGlobal(Offset(box.size.width/2,box.size.height/2)); //this is global position
-                          Color iconColor = Colors.white;
-                          print(position.dy);
-                          if ((position.dy - lastPointerPosition.dy).abs() < box.size.height/1) {
-                            if ((position.dx - lastPointerPosition.dx).abs() < box.size.width/1) {
-                              iconColor = Colors.red;
-                              trashCanHighlighted = true;
-                            }
-                          }
-                          return Icon(
-                            Icons.delete_outline_rounded,
-                            color: iconColor,
-                          );
-                        }),
-                      ),
-                    ))
-                : Container(),
           ],
         ),
       );
@@ -214,6 +181,8 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
   }
 
   MapEntry<int, ObjectDrawable>? _currentScaleEntry;
+
+  bool inTrashRange = false;
 
   Widget buildStackEntry(MapEntry<int, ObjectDrawable> entry, BoxConstraints constraints) {
     final drawable = entry.value;
@@ -240,7 +209,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
         transformHitTests: true,
         child: Container(
           color: Colors.black.withOpacity(0.4),
-          child: freeStyleSettings.mode != FreeStyleMode.none
+          child: painterMode != PainterMode.select
               ? widget
               : MouseRegion(
                   cursor: drawable.locked ? MouseCursor.defer : SystemMouseCursors.allScroll,
@@ -301,6 +270,21 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                         lastPointerPosition = Offset.zero;
                       } else {
                         lastPointerPosition = details.position;
+                        RenderBox? box = this.widget.trashKey.currentContext?.findRenderObject() as RenderBox?;
+                        Offset position = box!
+                            .localToGlobal(Offset(box.size.width / 2, box.size.height / 2)); //this is global position
+                        if (((position.dy - lastPointerPosition.dy).abs() < box.size.height / 1) &&
+                            ((position.dx - lastPointerPosition.dx).abs() < box.size.width / 1)) {
+                          if (!inTrashRange) {
+                            settings.layoutAssist.hapticFeedback.impact();
+                            inTrashRange = true;
+                          }
+                        } else {
+                          if (inTrashRange && _pointers == 1) {
+                            settings.layoutAssist.hapticFeedback.impact();
+                            inTrashRange = false;
+                          }
+                        }
                       }
                     },
                     child: GestureDetector(
@@ -490,11 +474,11 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
   /// Getter for the [ObjectSettings] from the controller to make code more readable.
   ObjectSettings get settings => PainterController.of(context).value.settings.object;
 
-  /// Getter for the [FreeStyleSettings] from the controller to make code more readable.
+  /// Getter for the [PainterMode] from the controller to make code more readable.
   ///
   /// This is used to disable object movement, scaling and rotation
-  /// when free-style drawing is enabled.
-  FreeStyleSettings get freeStyleSettings => PainterController.of(context).value.settings.freeStyle;
+  /// when select is not enabled.
+  PainterMode get painterMode => PainterController.of(context).value.settings.painterMode;
 
   /// Triggers when the user taps an empty space.
   ///
@@ -576,6 +560,15 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
 
     // Remove any assist lines the object has
     final newDrawable = drawable.copyWith(assists: {});
+
+    bool trashCanHighlighted = false;
+    RenderBox? box = widget.trashKey.currentContext?.findRenderObject() as RenderBox?;
+    Offset position = box!.localToGlobal(Offset(box.size.width / 2, box.size.height / 2)); //this is global position
+    if (((position.dy - lastPointerPosition.dy).abs() < box.size.height / 1) &&
+        ((position.dx - lastPointerPosition.dx).abs() < box.size.width / 1)) {
+      trashCanHighlighted = true;
+    }
+
     if (trashCanHighlighted) {
       setState(() {
         PainterController.of(context).removeDrawable(drawable, newAction: false);
@@ -968,13 +961,11 @@ class _ObjectControlBox extends StatelessWidget {
       duration: _ObjectWidgetState.controlsTransitionDuration,
       decoration: BoxDecoration(
         color: active ? activeColor : inactiveColor,
+        borderRadius: BorderRadius.circular(4),
         shape: shape,
-        boxShadow: [
-          BoxShadow(
-            color: shadowColor,
-            blurRadius: 2,
-          )
-        ],
+        border: Border.all(
+          color: shadowColor,
+        ),
       ),
     );
   }

@@ -3,9 +3,6 @@ import 'package:flutter/foundation.dart';
 /// Represents the settings of scaling the FlutterPainter.
 @immutable
 class ScaleSettings {
-  /// Whether scaling is enabled or not.
-  /// If `true`, you'll be able to zoom the FlutterPainter canvas in and out.
-  final bool enabled;
 
   /// The minimum scale that the user can "zoom out" to.
   /// Must be positive.
@@ -19,7 +16,6 @@ class ScaleSettings {
   /// [minScale] will be set to `1` if the provided value is not positive.
   /// [maxScale] will be set equal to [minScale] if the provided value is less than [minScale].
   const ScaleSettings({
-    this.enabled = false,
     double minScale = 1,
     double maxScale = 5,
   })  : minScale = minScale <= 0 ? 1 : minScale,
@@ -32,7 +28,6 @@ class ScaleSettings {
     double? maxScale,
   }) {
     return ScaleSettings(
-      enabled: enabled ?? this.enabled,
       minScale: minScale ?? this.minScale,
       maxScale: maxScale ?? this.maxScale,
     );

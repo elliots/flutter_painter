@@ -6,9 +6,44 @@ import 'shape_settings.dart';
 import 'object_settings.dart';
 import 'settings.dart';
 
+/// Enum representing different states that painting can be.
+enum PainterMode {
+  select,
+
+  zoom,
+
+  /// Free-style painting is enabled in drawing mode; used to draw scribbles.
+  pen,
+
+  /// Free-style painting is enabled in pencil mode; used to create pencil drawings.
+  pencil,
+
+  /// Free-style painting is enabled in erasing mode; used to erase drawings.
+  erase,
+
+}
+
+extension PainterModeExtension on PainterMode {
+  bool get isAFreestyleMode {
+    switch (this) {
+      case PainterMode.pen:
+        return true;
+      case PainterMode.pencil:
+        return true;
+      case PainterMode.erase:
+        return true;
+      default:
+        return false;
+    }
+  }
+}
+
 /// Represents all the settings used to create and draw drawables.
 @immutable
 class PainterSettings {
+  /// CurrentPainterMode
+  final PainterMode painterMode;
+
   /// Settings for free-style drawables.
   final FreeStyleSettings freeStyle;
 
@@ -27,6 +62,7 @@ class PainterSettings {
   /// Creates a [PainterSettings] with the given settings for [freeStyle], [object]
   /// and [text].
   const PainterSettings({
+    this.painterMode = PainterMode.zoom,
     this.freeStyle = const FreeStyleSettings(),
     this.object = const ObjectSettings(),
     this.text = const TextSettings(),
@@ -36,6 +72,7 @@ class PainterSettings {
 
   /// Creates a copy of this but with the given fields replaced with the new values.
   PainterSettings copyWith({
+    PainterMode? painterMode,
     FreeStyleSettings? freeStyle,
     ObjectSettings? object,
     TextSettings? text,
@@ -43,6 +80,7 @@ class PainterSettings {
     ScaleSettings? scale,
   }) {
     return PainterSettings(
+      painterMode: painterMode ?? this.painterMode,
       text: text ?? this.text,
       object: object ?? this.object,
       freeStyle: freeStyle ?? this.freeStyle,

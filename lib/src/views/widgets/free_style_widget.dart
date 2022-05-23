@@ -22,7 +22,7 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (settings.mode == FreeStyleMode.none || shapeSettings.factory != null) {
+    if (!painterMode.isAFreestyleMode || shapeSettings.factory != null) {
       return widget.child;
     }
 
@@ -45,6 +45,9 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
   /// Getter for [FreeStyleSettings] from `widget.controller.value` to make code more readable.
   FreeStyleSettings get settings => PainterController.of(context).value.settings.freeStyle;
 
+  /// Getter for [PainterMode] from `widget.controller.value` to make code more readable.
+  PainterMode get painterMode => PainterController.of(context).value.settings.painterMode;
+
   /// Getter for [ShapeSettings] from `widget.controller.value` to make code more readable.
   ShapeSettings get shapeSettings => PainterController.of(context).value.settings.shape;
 
@@ -55,7 +58,7 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
 
     // Create a new free-style drawable representing the current drawing
     final PathDrawable drawable;
-    if (settings.mode == FreeStyleMode.draw) {
+    if (painterMode == PainterMode.pen) {
       drawable = FreeStyleDrawable(
         path: [_globalToLocal(globalPosition)],
         color: settings.color,
@@ -64,7 +67,7 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
 
       // Add the drawable to the controller's drawables
       PainterController.of(context).addDrawables([drawable]);
-    } else if (settings.mode == FreeStyleMode.erase) {
+    } else if (painterMode == PainterMode.erase) {
       drawable = EraseDrawable(
         path: [_globalToLocal(globalPosition)],
         strokeWidth: settings.strokeWidth,
@@ -73,7 +76,7 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
 
       // Add the drawable to the controller's drawables
       PainterController.of(context).addDrawables([drawable], newAction: false);
-    } else if (settings.mode == FreeStyleMode.pencil) {
+    } else if (painterMode == PainterMode.pencil) {
       drawable = PencilDrawable(
         path: [_globalToLocal(globalPosition)],
         opacities: [1],
@@ -99,7 +102,7 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
 
     // Update the path in a copy of the current drawable
     final PathDrawable newDrawable;
-    if (settings.mode == FreeStyleMode.pencil) {
+    if (painterMode == PainterMode.pencil) {
       // If the mode is pencil add noise
       Set<Object> noise = generateNoise(_globalToLocal(globalPosition), drawable.strokeWidth);
       newDrawable = (drawable as PencilDrawable).copyWith(

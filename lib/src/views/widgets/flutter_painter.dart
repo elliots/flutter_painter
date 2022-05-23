@@ -138,8 +138,10 @@ class _FlutterPainterWidget extends StatelessWidget {
 
   final Object? _currentScaleEntry = null;
 
+  final GlobalKey trashKey = GlobalKey();
+
   /// Creates a [_FlutterPainterWidget] with the given [controller] and optional callbacks.
-  const _FlutterPainterWidget(
+  _FlutterPainterWidget(
       {Key? key,
       required this.controller,
       this.onDrawableCreated,
@@ -155,7 +157,7 @@ class _FlutterPainterWidget extends StatelessWidget {
             settings: settings,
             opaque: false,
             pageBuilder: (context, animation, secondaryAnimation) {
-              final controller = PainterController.of(context);
+              // final controller = PainterController.of(context);
               Widget child = _FreeStyleWidget(
                   // controller: controller,
                   child: _TextWidget(
@@ -163,63 +165,96 @@ class _FlutterPainterWidget extends StatelessWidget {
                 child: _ShapeWidget(
                   // controller: controller,
                   child: _ObjectWidget(
+                    trashKey: trashKey,
                     // controller: controller,
-                    interactionEnabled: !controller.settings.scale.enabled, // does not change properly
-                    child: CustomPaint(
-                      painter: Painter(
-                        drawables: (controller.value.settings.freeStyle.mode == FreeStyleMode.erase ||
-                            (controller.value.drawables.isNotEmpty &&
-                                controller.value.drawables.last is EraseDrawable))
-                            ? controller.value.drawables
-                            : [],
-                        background: controller.value.background,
-                      ),
-                      child: !(controller.value.settings.freeStyle.mode == FreeStyleMode.erase ||
-                          (controller.value.drawables.isNotEmpty &&
-                              controller.value.drawables.last is EraseDrawable))
-                          ? Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                RepaintBoundary(
-                                  child: CustomPaint(
-                                    isComplex: true, //added
-                                    willChange: false,
+                    interactionEnabled: !(controller.settings.painterMode == PainterMode.zoom),
+                    // does not change properly
+                    child: Builder(builder: (context) {
+                      print("Drawables: " + controller.drawables.length.toString());
+                      return CustomPaint(
+                        painter: Painter(
+                          drawables: (controller.painterMode == PainterMode.erase ||
+                                  (controller.value.drawables.isNotEmpty &&
+                                      controller.value.drawables.last is EraseDrawable))
+                              ? controller.value.drawables
+                              : [],
+                          background: controller.value.background,
+                        ),
+                        child: !(controller.painterMode == PainterMode.erase ||
+                                (controller.value.drawables.isNotEmpty &&
+                                    controller.value.drawables.last is EraseDrawable))
+                            ? Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  RepaintBoundary(
+                                    child: CustomPaint(
+                                      isComplex: true, //added
+                                      willChange: false,
+                                      painter: Painter(
+                                        drawables: controller.value.drawables.isNotEmpty
+                                            ? controller.value.drawables
+                                                .sublist(0, controller.value.drawables.length - 1)
+                                            : [],
+                                      ),
+                                    ),
+                                  ),
+                                  CustomPaint(
+                                    willChange: true,
                                     painter: Painter(
                                       drawables: controller.value.drawables.isNotEmpty
-                                          ? controller.value.drawables
-                                              .sublist(0, controller.value.drawables.length - 1)
-                                          : [],
-                                    ),
-                                  ),
-                                ),
-                                RepaintBoundary(
-                                  child: CustomPaint(
-                                    isComplex: true, //added
-                                    willChange: false,
-                                    painter: Painter(
-                                      drawables: controller.value.drawables.length != 0
                                           ? [controller.value.drawables.last]
-                                          : [],
+                                          : [
+                                              PencilDrawable(path: [
+                                                Offset(0, 0),
+                                                Offset(0, 0),
+                                              ], opacities: [
+                                                1,
+                                                1
+                                              ], strokeWidth: 1)
+                                            ], // pencil drawable fixes a bug where the last drawable wouldn't disappear
                                     ),
                                   ),
-                                ),
-                              ],
-                            )
-                          : Container(),
-                    ),
+                                ],
+                              )
+                            : Container(),
+                      );
+                    }),
                   ),
                 ),
               ));
               return NotificationListener<FlutterPainterNotification>(
                 onNotification: onNotification,
-                child: InteractiveViewer(
-                  transformationController: controller.transformationController,
-                  minScale: controller.settings.scale.enabled ? controller.settings.scale.minScale : 1,
-                  maxScale: controller.settings.scale.enabled ? controller.settings.scale.maxScale : 1,
-                  panEnabled:
-                      controller.settings.scale.enabled && (controller.freeStyleSettings.mode == FreeStyleMode.none),
-                  scaleEnabled: controller.settings.scale.enabled,
-                  child: controller.settings.scale.enabled ? IgnorePointer(child: child) : child,
+                child: Stack(
+                  children: [
+                    InteractiveViewer(
+                      transformationController: controller.transformationController,
+                      minScale: controller.painterMode == PainterMode.zoom ? controller.settings.scale.minScale : 1,
+                      maxScale: controller.painterMode == PainterMode.zoom ? controller.settings.scale.maxScale : 1,
+                      panEnabled: controller.painterMode == PainterMode.zoom,
+                      scaleEnabled: controller.painterMode == PainterMode.zoom,
+                      child: controller.painterMode == PainterMode.zoom ? IgnorePointer(child: child) : child,
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 200),
+                          opacity: controller.selectedObjectDrawable != null ? 1 : 0,
+                          child: Material(
+                            key: trashKey,
+                            borderRadius: BorderRadius.circular(100),
+                            color: Colors.black54,
+                            child: Padding(
+                              padding: const EdgeInsets.all(6),
+                              child: Builder(builder: (context) {
+                                return const Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: Colors.red,
+                                );
+                              }),
+                            ),
+                          )),
+                    ),
+                  ],
                 ),
               );
             }));
