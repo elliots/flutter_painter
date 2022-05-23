@@ -29,8 +29,7 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
     return RawGestureDetector(
       behavior: HitTestBehavior.opaque,
       gestures: {
-        _DragGestureDetector:
-            GestureRecognizerFactoryWithHandlers<_DragGestureDetector>(
+        _DragGestureDetector: GestureRecognizerFactoryWithHandlers<_DragGestureDetector>(
           () => _DragGestureDetector(
             onHorizontalDragDown: _handleHorizontalDragDown,
             onHorizontalDragUpdate: _handleHorizontalDragUpdate,
@@ -44,12 +43,10 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
   }
 
   /// Getter for [FreeStyleSettings] from `widget.controller.value` to make code more readable.
-  FreeStyleSettings get settings =>
-      PainterController.of(context).value.settings.freeStyle;
+  FreeStyleSettings get settings => PainterController.of(context).value.settings.freeStyle;
 
   /// Getter for [ShapeSettings] from `widget.controller.value` to make code more readable.
-  ShapeSettings get shapeSettings =>
-      PainterController.of(context).value.settings.shape;
+  ShapeSettings get shapeSettings => PainterController.of(context).value.settings.shape;
 
   /// Callback when the user holds their pointer(s) down onto the widget.
   void _handleHorizontalDragDown(Offset globalPosition) {
@@ -76,6 +73,16 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
 
       // Add the drawable to the controller's drawables
       PainterController.of(context).addDrawables([drawable], newAction: false);
+    } else if (settings.mode == FreeStyleMode.pencil) {
+      drawable = PencilDrawable(
+        path: [_globalToLocal(globalPosition)],
+        opacities: [1],
+        color: settings.color,
+        strokeWidth: settings.strokeWidth,
+      );
+
+      // Add the drawable to the controller's drawables
+      PainterController.of(context).addDrawables([drawable]);
     } else {
       return;
     }
@@ -90,16 +97,55 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
     // If there is no current drawable, ignore user input
     if (drawable == null) return;
 
-    // Add the new point to a copy of the current drawable
-    final newDrawable = drawable.copyWith(
-      path: List<Offset>.from(drawable.path)
-        ..add(_globalToLocal(globalPosition)),
-    );
+    // Update the path in a copy of the current drawable
+    final PathDrawable newDrawable;
+    if (settings.mode == FreeStyleMode.pencil) {
+      // If the mode is pencil add noise
+      Set<Object> noise = generateNoise(_globalToLocal(globalPosition), drawable.strokeWidth);
+      newDrawable = (drawable as PencilDrawable).copyWith(
+        path: List<Offset>.from(drawable.path)..addAll(noise.first as List<Offset>),
+        opacities: List<double>.from(drawable.opacities)..addAll(noise.last as List<double>),
+      );
+    } else {
+      // Otherwise just add the new point
+      newDrawable = drawable.copyWith(
+        path: List<Offset>.from(drawable.path)..add(_globalToLocal(globalPosition)),
+      );
+    }
     // Replace the current drawable with the copy with the added point
-    PainterController.of(context)
-        .replaceDrawable(drawable, newDrawable, newAction: false);
+    PainterController.of(context).replaceDrawable(drawable, newDrawable, newAction: false);
     // Update the current drawable to be the new copy
     this.drawable = newDrawable;
+  }
+
+  Set<Object> generateNoise(Offset initialOffset, double range) {
+    List<Offset> points = [];
+    List<double> opacities = [];
+    for (int i = 0; i < 10; i++) {
+      var percentOfRange1 = getPercentOfRange(range);
+      var percentOfRange2 = getPercentOfRange(range);
+      double opacity = 1 - max(percentOfRange1, percentOfRange2) * 0.5;
+      points.add(Offset(addVariance(initialOffset.dx, percentOfRange1, range),
+          addVariance(initialOffset.dy, percentOfRange2, range)));
+      opacities.add(opacity);
+    }
+    return {points, opacities};
+  }
+
+  double getPercentOfRange(double range) {
+    double percentOfRange = Random().nextInt(10000) / 10000;
+    // convert uniform distribution to quadratic, more values close to 0
+    percentOfRange = percentOfRange;// * percentOfRange;
+    return percentOfRange;
+  }
+
+  double addVariance(double source, double percentOfRange, double range) {
+    // Plus or minus
+    if (Random().nextBool()) {
+      return source + percentOfRange * range;
+    } else {
+      return source - percentOfRange * range;
+    }
   }
 
   /// Callback when the user removes all pointers from the widget.

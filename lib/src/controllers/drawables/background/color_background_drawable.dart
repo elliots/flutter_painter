@@ -20,6 +20,11 @@ class ColorBackgroundDrawable extends BackgroundDrawable {
     canvas.drawColor(color, BlendMode.src);
   }
 
+  @override
+  Size getSize() {
+    return Size(1000, 1000);
+  }
+
   // /// Compares two [ColorBackgroundDrawable]s for equality.
   // @override
   // bool operator ==(Object other) {

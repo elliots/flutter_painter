@@ -453,6 +453,12 @@ class _NoBackgroundPassedBackgroundDrawable extends BackgroundDrawable {
     throw UnimplementedError(
         "This background drawable is only to hold the default value in the PainterControllerValue copyWith method, and must not be used otherwise.");
   }
+
+  @override
+  ui.Size getSize() {
+    throw UnimplementedError(
+        "This background drawable is only to hold the default value in the PainterControllerValue copyWith method, and must not be used otherwise.");
+  }
 }
 
 /// Private class that is used internally to represent no

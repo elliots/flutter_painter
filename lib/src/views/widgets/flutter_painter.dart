@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_painter/src/controllers/drawables/path/pencil_drawable.dart';
 import '../../controllers/events/selected_object_drawable_removed_event.dart';
 import '../../controllers/helpers/renderer_check/renderer_check.dart';
 import '../../controllers/drawables/drawable.dart';
@@ -163,12 +164,48 @@ class _FlutterPainterWidget extends StatelessWidget {
                   // controller: controller,
                   child: _ObjectWidget(
                     // controller: controller,
-                    interactionEnabled: true,
+                    interactionEnabled: !controller.settings.scale.enabled, // does not change properly
                     child: CustomPaint(
                       painter: Painter(
-                        drawables: controller.value.drawables,
+                        drawables: (controller.value.settings.freeStyle.mode == FreeStyleMode.erase ||
+                            (controller.value.drawables.isNotEmpty &&
+                                controller.value.drawables.last is EraseDrawable))
+                            ? controller.value.drawables
+                            : [],
                         background: controller.value.background,
                       ),
+                      child: !(controller.value.settings.freeStyle.mode == FreeStyleMode.erase ||
+                          (controller.value.drawables.isNotEmpty &&
+                              controller.value.drawables.last is EraseDrawable))
+                          ? Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                RepaintBoundary(
+                                  child: CustomPaint(
+                                    isComplex: true, //added
+                                    willChange: false,
+                                    painter: Painter(
+                                      drawables: controller.value.drawables.isNotEmpty
+                                          ? controller.value.drawables
+                                              .sublist(0, controller.value.drawables.length - 1)
+                                          : [],
+                                    ),
+                                  ),
+                                ),
+                                RepaintBoundary(
+                                  child: CustomPaint(
+                                    isComplex: true, //added
+                                    willChange: false,
+                                    painter: Painter(
+                                      drawables: controller.value.drawables.length != 0
+                                          ? [controller.value.drawables.last]
+                                          : [],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Container(),
                     ),
                   ),
                 ),

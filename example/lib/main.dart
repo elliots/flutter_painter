@@ -233,7 +233,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
                                 ],
                               ),
                               if (controller.freeStyleMode ==
-                                  FreeStyleMode.draw)
+                                  FreeStyleMode.pencil)
                                 Row(
                                   children: [
                                     const Expanded(
@@ -406,7 +406,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
               IconButton(
                 icon: Icon(
                   PhosphorIcons.scribbleLoop,
-                  color: controller.freeStyleMode == FreeStyleMode.draw
+                  color: controller.freeStyleMode == FreeStyleMode.pencil
                       ? Theme.of(context).accentColor
                       : null,
                 ),
@@ -503,8 +503,8 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
   }
 
   void toggleFreeStyleDraw() {
-    controller.freeStyleMode = controller.freeStyleMode != FreeStyleMode.draw
-        ? FreeStyleMode.draw
+    controller.freeStyleMode = controller.freeStyleMode != FreeStyleMode.pencil
+        ? FreeStyleMode.pencil
         : FreeStyleMode.none;
   }
 

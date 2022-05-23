@@ -252,6 +252,8 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                       if (controller?.selectedObjectDrawable == null) {
                         print("selected");
                         setState(() {
+                          controller?.removeDrawable(entry.value, newAction: true);
+                          controller?.addDrawables([entry.value], newAction: false);
                           controller?.selectObjectDrawable(entry.value);
                           _currentScaleEntry = entry;
                           print("_currentScaleEntry set to entry");
@@ -546,7 +548,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
 
     drawableInitialLocalFocalPoints[index] = Offset(rotateOffset[12], rotateOffset[13]);
 
-    updateDrawable(drawable, drawable, newAction: true);
+    updateDrawable(drawable, drawable, newAction: false);
   }
 
   /// Callback when the object drawable finishes movement, scaling and rotation.

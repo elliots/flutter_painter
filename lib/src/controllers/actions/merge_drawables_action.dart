@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 
 import '../drawables/grouped_drawable.dart';
@@ -25,7 +27,8 @@ class MergeDrawablesAction extends ControllerAction<void, void> {
     final value = controller.value;
 
     final currentDrawables = List<Drawable>.from(value.drawables);
-    final groupedDrawable = GroupedDrawable(drawables: currentDrawables);
+    final groupedDrawable = GroupedDrawable(
+        drawables: currentDrawables);
     controller.value = value.copyWith(
       drawables: [groupedDrawable],
     );

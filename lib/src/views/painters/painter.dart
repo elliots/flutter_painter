@@ -38,16 +38,13 @@ class Painter extends CustomPainter {
     // and then proceed to drawing the drawables
     if (_scale != null) {
       canvas.save();
-      canvas.transform(Matrix4.identity()
-          .scaled(size.width / _scale.width, size.height / _scale.height)
-          .storage);
+      canvas.transform(Matrix4.identity().scaled(size.width / _scale.width, size.height / _scale.height).storage);
     }
 
     canvas.saveLayer(Rect.largest, Paint());
 
     // Draw all the drawables
-    for (final drawable
-        in drawables.where((drawable) => drawable.isNotHidden)) {
+    for (final drawable in drawables.where((drawable) => drawable.isNotHidden)) {
       drawable.draw(canvas, _scale ?? size);
     }
 
@@ -62,10 +59,13 @@ class Painter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     // Unnecessary check to enforce the [Painter] type
-    if (oldDelegate is! Painter) return true;
+    if (oldDelegate is! Painter) {
+      return true;
+    }
 
     // If the background changed, or any of the drawables changed, a repaint is needed
-    return oldDelegate.background != background ||
-        !const ListEquality().equals(oldDelegate.drawables, drawables);
+    bool result =
+        oldDelegate.background != background || !const ListEquality().equals(oldDelegate.drawables, drawables);
+    return result;
   }
 }

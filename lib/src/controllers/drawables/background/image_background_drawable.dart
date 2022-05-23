@@ -17,27 +17,26 @@ class ImageBackgroundDrawable extends BackgroundDrawable {
   @override
   void draw(Canvas canvas, Size size) {
     // Draw the image onto the canvas.
-    canvas.drawImageRect(
-        image,
-        Rect.fromPoints(Offset.zero,
-            Offset(image.width.toDouble(), image.height.toDouble())),
-        Rect.fromPoints(Offset.zero, Offset(size.width, size.height)),
-        Paint());
+    canvas.drawImageRect(image, Rect.fromPoints(Offset.zero, Offset(image.width.toDouble(), image.height.toDouble())),
+        Rect.fromPoints(Offset.zero, Offset(size.width, size.height)), Paint());
   }
 
-  // /// Compares two [ImageBackgroundDrawable]s for equality.
-  // @override
-  // bool operator ==(Object other) {
-  //   return other is ImageBackgroundDrawable && other.image == image;
-  // }
-  //
-  // @override
-  // int get hashCode => image.hashCode;
+  @override
+  Size getSize() {
+    return Size(image.width.toDouble()/4, image.height.toDouble()/4);
+  }
+// /// Compares two [ImageBackgroundDrawable]s for equality.
+// @override
+// bool operator ==(Object other) {
+//   return other is ImageBackgroundDrawable && other.image == image;
+// }
+//
+// @override
+// int get hashCode => image.hashCode;
 }
 
 /// An extension on ui.Image to create a background drawable easily.
 extension ImageBackgroundDrawableGetter on Image {
   /// Returns an [ImageBackgroundDrawable] of the current [Image].
-  ImageBackgroundDrawable get backgroundDrawable =>
-      ImageBackgroundDrawable(image: this);
+  ImageBackgroundDrawable get backgroundDrawable => ImageBackgroundDrawable(image: this);
 }
