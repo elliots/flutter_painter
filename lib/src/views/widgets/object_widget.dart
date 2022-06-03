@@ -208,7 +208,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
         angle: drawable.rotationAngle,
         transformHitTests: true,
         child: Container(
-          color: Colors.black.withOpacity(0.4),
+          color: Colors.black.withOpacity(0.4), //todo remove
           child: painterMode != PainterMode.select
               ? widget
               : MouseRegion(
@@ -289,7 +289,12 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                     },
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
-                      onTap: () => tapDrawable(drawable),
+                      onTap: () {
+                        if (drawable is TextDrawable) {
+                          print("Tapped key: " + drawable.key.toString());
+                        }
+                        tapDrawable(drawable);
+                      },
                       child: AnimatedSwitcher(
                         duration: controlsTransitionDuration,
                         child: selected
@@ -489,6 +494,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
     setState(() {
       // selectedDrawableIndex = null;
       controller?.deselectObjectDrawable();
+      controller?.addText();
     });
   }
 
@@ -503,6 +509,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
     } else {
       SelectedObjectDrawableUpdatedNotification(drawable).dispatch(context);
       if (drawable is TextDrawable) {
+        print("ket: " + drawable.key.toString());
         ObjectDrawableReselectedNotification(drawable.copyWith(assists: {}))
             .dispatch(context); // todo this becomes the object tapped notification
       }

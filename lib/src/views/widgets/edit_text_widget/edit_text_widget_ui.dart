@@ -78,48 +78,65 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
       onTap: () => widget.textFieldNode.unfocus(),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-        child: Scaffold(
-          backgroundColor: Colors.black54,
-          body: SafeArea(
-            child: Column(
-              children: [
-                buildTop(),
-                Expanded(
-                  child: Row(
-                    children: [
-                      buildSide(),
-                      Expanded(
-                        child: Center(
-                          child: TextField(
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.zero,
-                              isDense: true,
+        child: Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [Colors.transparent, Colors.transparent])),
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  buildTop(),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        buildSide(),
+                        Expanded(
+                          child: Center(
+                            child: TextField(
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                                isDense: true,
+                              ),
+                              cursorColor: Colors.white,
+                              buildCounter: widget.buildEmptyCounter,
+                              maxLength: 1000,
+                              minLines: 1,
+                              maxLines: 10,
+                              controller: widget.textEditingController,
+                              focusNode: widget.textFieldNode,
+                              style: widget.controller.textStyle,
+                              textAlign: TextAlign.center,
+                              textAlignVertical: TextAlignVertical.center,
+                              onEditingComplete: widget.onEditingComplete,
                             ),
-                            cursorColor: Colors.white,
-                            buildCounter: widget.buildEmptyCounter,
-                            maxLength: 1000,
-                            minLines: 1,
-                            maxLines: 10,
-                            controller: widget.textEditingController,
-                            focusNode: widget.textFieldNode,
-                            style: widget.controller.textStyle,
-                            textAlign: TextAlign.center,
-                            textAlignVertical: TextAlignVertical.center,
-                            onEditingComplete: widget.onEditingComplete,
                           ),
                         ),
-                      ),
-                      Container(
-                        width: 52,
-                        height: double.infinity,
-                        color: Colors.transparent,
-                      ),
-                    ],
+                        Container(
+                          width: 52,
+                          height: double.infinity,
+                          color: Colors.transparent,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                buildBottom(),
-              ],
+                  Container(
+                    decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [Colors.black.withOpacity(0.5), Colors.transparent])),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 32),
+                      child: buildBottom(),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -227,21 +244,21 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
                 buildFontFamilyOption(
                     "Serif",
                     GoogleFonts.playfairDisplay().fontFamily!,
-                        () => setTextFontFamily(
-                      GoogleFonts.playfairDisplay().fontFamily!,
-                    )),
+                    () => setTextFontFamily(
+                          GoogleFonts.playfairDisplay().fontFamily!,
+                        )),
                 buildFontFamilyOption(
                     "Bold",
                     GoogleFonts.permanentMarker().fontFamily!,
-                        () => setTextFontFamily(
-                      GoogleFonts.permanentMarker().fontFamily!,
-                    )),
+                    () => setTextFontFamily(
+                          GoogleFonts.permanentMarker().fontFamily!,
+                        )),
                 buildFontFamilyOption(
                     "Cursive",
                     GoogleFonts.cookie().fontFamily!,
-                        () => setTextFontFamily(
-                      GoogleFonts.cookie().fontFamily!,
-                    )),
+                    () => setTextFontFamily(
+                          GoogleFonts.cookie().fontFamily!,
+                        )),
               ]),
             ),
           ),
@@ -290,11 +307,8 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Text(
                 name,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: fontFamily),
+                style:
+                    TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500, fontFamily: fontFamily),
               ),
             )),
           ),
@@ -333,13 +347,7 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
   void updateTextBackgroundColor(bool swap) {
     if (swap) {
       if (textStyle.background == null || textStyle.background?.color == Colors.transparent) {
-        widget.controller.textStyle = textStyle.copyWith(
-            background: Paint()
-              ..color = textStyle.color!.computeLuminance() > 0.5 ? Colors.black : Colors.white
-              ..strokeWidth = (textStyle.height ?? 1) * (textStyle.fontSize ?? 20) * 1.45
-              ..strokeJoin = StrokeJoin.round
-              ..strokeCap = StrokeCap.round
-              ..style = PaintingStyle.stroke);
+        widget.controller.textStyle = textStyle.copyWith(background: getTextStyleBackground());
       } else {
         widget.controller.textStyle = textStyle.copyWith(background: Paint()..color = Colors.transparent);
       }
@@ -347,13 +355,16 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
       if (textStyle.background == null || textStyle.background?.color == Colors.transparent) {
         return;
       }
-      widget.controller.textStyle = textStyle.copyWith(
-          background: Paint()
-            ..color = textStyle.color!.computeLuminance() > 0.5 ? Colors.black : Colors.white
-            ..strokeWidth = (textStyle.height ?? 1) * (textStyle.fontSize ?? 20) * 1.45
-            ..strokeJoin = StrokeJoin.round
-            ..strokeCap = StrokeCap.round
-            ..style = PaintingStyle.stroke);
+      widget.controller.textStyle = textStyle.copyWith(background: getTextStyleBackground());
     }
+  }
+
+  Paint? getTextStyleBackground() {
+    return Paint()
+      ..color = (textStyle.color!.computeLuminance() > 0.5 ? Colors.black : Colors.white)
+      ..strokeWidth = (textStyle.height ?? 1) * (textStyle.fontSize ?? 20) * 1.45
+      ..strokeJoin = StrokeJoin.round
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
   }
 }
