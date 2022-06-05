@@ -83,7 +83,7 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
               gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
-                  colors: [Colors.transparent, Colors.transparent])),
+                  colors: [Colors.black, Colors.white.withOpacity(0.4), Colors.white.withOpacity(0)])),
           child: Scaffold(
             backgroundColor: Colors.transparent,
             body: SafeArea(

@@ -13,6 +13,11 @@ class TextSettings {
   /// However, you won't be able to listen to changes in user input focus.
   final FocusNode? focusNode;
 
+  final String doneText;
+  final String boldText;
+  final String serifText;
+  final String classicText;
+
   /// Creates a [TextSettings] with the given [textStyle] and [focusNode].
   const TextSettings({
     this.textStyle = const TextStyle(
@@ -20,6 +25,10 @@ class TextSettings {
       color: Colors.black,
     ),
     this.focusNode,
+    this.doneText = "Done",
+    this.boldText ="Bold",
+    this.serifText = "Serif",
+    this.classicText = "Classic",
   });
 
   /// Creates a copy of this but with the given fields replaced with the new values.

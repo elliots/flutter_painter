@@ -184,6 +184,8 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
 
   bool inTrashRange = false;
 
+  bool scaleStarted = false;
+
   Widget buildStackEntry(MapEntry<int, ObjectDrawable> entry, BoxConstraints constraints) {
     final drawable = entry.value;
     final selected = drawable == controller?.selectedObjectDrawable;
@@ -208,7 +210,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
         angle: drawable.rotationAngle,
         transformHitTests: true,
         child: Container(
-          color: Colors.black.withOpacity(0.4), //todo remove
+          color: Colors.black.withOpacity(0), //todo remove
           child: painterMode != PainterMode.select
               ? widget
               : MouseRegion(
@@ -257,10 +259,16 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                           if (_currentScaleEntry != null) {
                             final newDrawable = onDrawableScaleEnd(_currentScaleEntry!);
                             if (newDrawable == null) return;
+                            //todo possible text error
                             controller?.removeDrawable(newDrawable, newAction: false);
                             controller?.addDrawables([newDrawable], newAction: false);
                             _currentScaleEntry = null;
                             print("_currentScaleEntry set to null");
+                            if (!scaleStarted) {
+                              tapDrawable(newDrawable);
+                            } else {
+                              scaleStarted = false;
+                            }
                           }
                         });
                       }
@@ -291,9 +299,10 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                       behavior: HitTestBehavior.opaque,
                       onTap: () {
                         if (drawable is TextDrawable) {
-                          print("Tapped key: " + drawable.key.toString());
+                          print("Tapped key: " + drawable.key.toString() + " " + drawable.text);
                         }
-                        tapDrawable(drawable);
+                        //tapDrawable(drawable);
+                        // tap handled by on pointer up but still need to block background taps
                       },
                       child: AnimatedSwitcher(
                         duration: controlsTransitionDuration,
@@ -489,6 +498,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
   ///
   /// Deselects the selected object drawable.
   void onBackgroundTapped() {
+    if (controller?.painterMode != PainterMode.select) return;
     SelectedObjectDrawableUpdatedNotification(null).dispatch(context);
 
     setState(() {
@@ -502,14 +512,14 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
   ///
   /// Dispatches an [ObjectDrawableNotification] that the object was tapped.
   void tapDrawable(ObjectDrawable drawable) {
-    if (drawable.locked) return;
+    if (drawable.locked || controller?.painterMode != PainterMode.select) return;
 
     if (controller?.selectedObjectDrawable == drawable) {
       ObjectDrawableReselectedNotification(drawable).dispatch(context);
     } else {
       SelectedObjectDrawableUpdatedNotification(drawable).dispatch(context);
       if (drawable is TextDrawable) {
-        print("ket: " + drawable.key.toString());
+        print("key: " + drawable.key.toString() + " " + drawable.text);
         ObjectDrawableReselectedNotification(drawable.copyWith(assists: {}))
             .dispatch(context); // todo this becomes the object tapped notification
       }
@@ -522,6 +532,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
   void onDrawableScaleStart(MapEntry<int, ObjectDrawable> entry, ScaleStartDetails details) {
     if (!widget.interactionEnabled) return;
 
+    scaleStarted = true;
     final index = entry.key;
     final drawable = entry.value;
 
@@ -539,7 +550,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
 
     drawableInitialLocalFocalPoints[index] = Offset(rotateOffset[12], rotateOffset[13]);
 
-    updateDrawable(drawable, drawable, newAction: false);
+    updateDrawable(drawable, drawable, newAction: false);//todo possible text error
   }
 
   /// Callback when the object drawable finishes movement, scaling and rotation.
@@ -807,6 +818,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
   }
 
   void onScaleControlPanStart(int controlIndex, MapEntry<int, ObjectDrawable> entry, DragStartDetails details) {
+
     setState(() {
       controlsAreActive[controlIndex] = true;
     });

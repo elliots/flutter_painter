@@ -60,6 +60,7 @@ class _TextWidgetState extends State<_TextWidget> {
   /// This handles notifications of type [ObjectDrawableReselectedNotification] to edit
   /// an existing [TextDrawable].
   bool onObjectDrawableNotification(ObjectDrawableReselectedNotification notification) {
+    print("Handling text selected notification");
     final drawable = notification.drawable;
 
     if (drawable is TextDrawable) {
@@ -72,7 +73,7 @@ class _TextWidgetState extends State<_TextWidget> {
         return false;
       }, orElse: () => drawable) as TextDrawable;
       PainterController.of(context).removeDrawable(oldDrawable, newAction: true);
-      openTextEditor(drawable);
+      openTextEditor(oldDrawable);
       // Mark notification as handled
       return true;
     }

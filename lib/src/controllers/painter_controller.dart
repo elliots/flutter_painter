@@ -45,6 +45,8 @@ class PainterController extends ValueNotifier<PainterControllerValue> {
   /// However, you can use it to grab information about the transformations.
   final TransformationController transformationController;
 
+  final GlobalKey transformationWidgetKey = GlobalKey();
+
   /// Create a [PainterController].
   ///
   /// The behavior of a [FlutterPainter] widget is controlled by [settings].

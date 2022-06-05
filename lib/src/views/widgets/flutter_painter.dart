@@ -187,6 +187,21 @@ class _FlutterPainterWidget extends StatelessWidget {
                             ? Stack(
                                 fit: StackFit.expand,
                                 children: [
+                                  CustomPaint(
+                                    willChange: true,
+                                    painter: Painter(
+                                      drawables: controller.value.drawables.isNotEmpty
+                                          ? controller.value.drawables
+                                          : [
+                                              PencilDrawable(
+                                                path: [const Offset(0, 0), const Offset(0, 0)],
+                                                opacities: [1, 1],
+                                                strokeWidth: 1,
+                                              ),
+                                            ], // pencil drawable fixes a bug where the last drawable wouldn't disappear
+                                    ),
+                                  ),
+                                  /*// optimization not working yet
                                   RepaintBoundary(
                                     child: CustomPaint(
                                       isComplex: true, //added
@@ -214,7 +229,7 @@ class _FlutterPainterWidget extends StatelessWidget {
                                               ], strokeWidth: 1)
                                             ], // pencil drawable fixes a bug where the last drawable wouldn't disappear
                                     ),
-                                  ),
+                                  ),*/
                                 ],
                               )
                             : Container(),
@@ -228,12 +243,17 @@ class _FlutterPainterWidget extends StatelessWidget {
                 child: Stack(
                   children: [
                     InteractiveViewer(
+                      key: controller.transformationWidgetKey,
                       transformationController: controller.transformationController,
-                      minScale: controller.painterMode == PainterMode.zoom ? controller.settings.scale.minScale : 1,
-                      maxScale: controller.painterMode == PainterMode.zoom ? controller.settings.scale.maxScale : 1,
+                      minScale: controller.settings.scale.minScale,
+                      maxScale: controller.settings.scale.maxScale,
                       panEnabled: controller.painterMode == PainterMode.zoom,
                       scaleEnabled: controller.painterMode == PainterMode.zoom,
-                      child: controller.painterMode == PainterMode.zoom ? IgnorePointer(child: child) : child,
+                      child: controller.painterMode == PainterMode.zoom
+                          ? IgnorePointer(
+                              child: child,
+                            )
+                          : child,
                     ),
                     Align(
                       alignment: Alignment.bottomCenter,
