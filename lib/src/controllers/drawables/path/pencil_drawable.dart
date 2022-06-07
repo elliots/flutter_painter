@@ -3,7 +3,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../../views/painters/painter.dart';
 import 'path_drawable.dart';
+import 'dart:ui' as ui;
 
 /// Pencil Drawable (pencil scribble).
 class PencilDrawable extends PathDrawable {
@@ -57,9 +59,41 @@ class PencilDrawable extends PathDrawable {
     ..color = color
     ..strokeWidth = 0.8;
 
+  bool captureNotStarted = true;
+  ui.Image? myBackground;
   /// Draws the free-style [path] on the provided [canvas] of size [size].
   @override
   void draw(Canvas canvas, Size size) {
+
+
+    if (myBackground == null && captureNotStarted) {
+      captureNotStarted = true;
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      // Create a UI path to draw
+      final path = Path();
+
+      // Start path from the first point
+      path.moveTo(this.path[0].dx, this.path[0].dy);
+      path.lineTo(this.path[0].dx, this.path[0].dy);
+
+      // Draw a line between each point on the free path
+      int index = 1;
+      this.path.sublist(1).forEach((point) {
+        Paint newPaint = paint;
+        newPaint.color = color.withOpacity(opacities[index]);
+        canvas.drawCircle(Offset(point.dx, point.dy), strokeWidth/6*opacities[index], newPaint);
+        index++;
+      });
+
+      // Draw the path on the canvas
+      canvas.drawPath(path, paint);
+      recorder.endRecording().toImage(size.width.floor(), size.height.floor()).then((value) => myBackground = value);
+    } else {
+      canvas.drawImage(myBackground!, Offset.zero, Paint());
+      return;
+    }
+
     // Create a UI path to draw
     final path = Path();
 

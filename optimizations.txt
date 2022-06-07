@@ -1,0 +1,13 @@
+all text drawables
+    separate
+    display on top
+
+all other drawables
+    everytime new paint layer added
+        lock drawables
+        render image, 1000 by 1000, or canvas size?
+
+
+Future?
+    Show layers
+    reorder drawables
