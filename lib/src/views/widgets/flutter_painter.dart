@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_painter/src/controllers/drawables/path/pencil_drawable.dart';
 import '../../controllers/drawables/path/ink_freehand_drawable.dart';
+import '../../controllers/drawables/path/picture_brush_drawable.dart';
 import '../../controllers/events/selected_object_drawable_removed_event.dart';
 import '../../controllers/helpers/renderer_check/renderer_check.dart';
 import '../../controllers/drawables/drawable.dart';

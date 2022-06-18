@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:example/brush_previews.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_painter/flutter_painter.dart';
@@ -130,9 +131,9 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
                     // Delete the selected drawable
                     IconButton(
                       icon: const Icon(
-                        PhosphorIcons.trash,
+                        PhosphorIcons.paintBrush,
                       ),
-                      onPressed: controller.selectedObjectDrawable == null ? null : removeSelectedDrawable,
+                      onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BrushPreviews())),
                     ),
                     // Delete the selected drawable
                     IconButton(
@@ -222,7 +223,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
                                   ),
                                 ],
                               ),
-                              if (controller.painterMode == PainterMode.pencil)
+                              if (controller.painterMode == PainterMode.pictureBrush1)
                                 Row(
                                   children: [
                                     const Expanded(flex: 1, child: Text("Color")),
@@ -243,24 +244,27 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
                               ValueListenableBuilder(
                                 valueListenable: controller.transformationController,
                                 builder: (context, val, child) => Slider(
-                                  min: controller.scaleSettings.minScale,
+                                    min: controller.scaleSettings.minScale,
                                     max: controller.scaleSettings.maxScale,
                                     value: controller.transformationController.value.getMaxScaleOnAxis(),
                                     onChanged: (double val) {
                                       double scale = controller.transformationController.value.getMaxScaleOnAxis();
                                       Matrix4 newValue = controller.transformationController.value
                                         ..scale(1 / scale)
-                                        ..scale(val);double maxWidth = (controller.transformationWidgetKey.currentContext?.size?.width ?? 100);
-                                      double maxHeight = (controller.transformationWidgetKey.currentContext?.size?.height ?? 100);
+                                        ..scale(val);
+                                      double maxWidth =
+                                          (controller.transformationWidgetKey.currentContext?.size?.width ?? 100);
+                                      double maxHeight =
+                                          (controller.transformationWidgetKey.currentContext?.size?.height ?? 100);
                                       double maxTranslationX = ((maxWidth * val) - maxWidth) * -1;
                                       double maxTranslationY = ((maxHeight * val) - maxHeight) * -1;
-                                      if(newValue.getTranslation().x < maxTranslationX) {
-                                        double correction =  (-1 * newValue.getTranslation().x + maxTranslationX);
-                                        newValue.translate(correction/val);
+                                      if (newValue.getTranslation().x < maxTranslationX) {
+                                        double correction = (-1 * newValue.getTranslation().x + maxTranslationX);
+                                        newValue.translate(correction / val);
                                       }
-                                      if(newValue.getTranslation().y < maxTranslationY) {
-                                        double correction =  (-1 * newValue.getTranslation().y + maxTranslationY);
-                                        newValue.translate(0.0, correction/val);
+                                      if (newValue.getTranslation().y < maxTranslationY) {
+                                        double correction = (-1 * newValue.getTranslation().y + maxTranslationY);
+                                        newValue.translate(0.0, correction / val);
                                       }
                                       controller.transformationController.value = newValue;
                                       setState(() {});
@@ -402,7 +406,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
               IconButton(
                 icon: Icon(
                   PhosphorIcons.scribbleLoop,
-                  color: controller.painterMode == PainterMode.pencil ? Theme.of(context).accentColor : null,
+                  color: controller.painterMode == PainterMode.pictureBrush1 ? Theme.of(context).accentColor : null,
                 ),
                 onPressed: toggleFreeStyleDraw,
               ),
@@ -494,7 +498,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
 
   void toggleFreeStyleDraw() {
     controller.painterMode =
-        controller.painterMode != PainterMode.pencil ? PainterMode.pencil : PainterMode.select;
+        controller.painterMode != PainterMode.pictureBrush1 ? PainterMode.pictureBrush1 : PainterMode.select;
   }
 
   void toggleFreeStyleErase() {

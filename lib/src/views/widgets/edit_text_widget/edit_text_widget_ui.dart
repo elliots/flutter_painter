@@ -234,32 +234,7 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-              child: Row(children: [
-                buildFontFamilyOption(
-                    "Classic",
-                    GoogleFonts.roboto().fontFamily!,
-                    () => setTextFontFamily(
-                          GoogleFonts.roboto().fontFamily!,
-                        )),
-                buildFontFamilyOption(
-                    "Serif",
-                    GoogleFonts.playfairDisplay().fontFamily!,
-                    () => setTextFontFamily(
-                          GoogleFonts.playfairDisplay().fontFamily!,
-                        )),
-                buildFontFamilyOption(
-                    "Bold",
-                    GoogleFonts.permanentMarker().fontFamily!,
-                    () => setTextFontFamily(
-                          GoogleFonts.permanentMarker().fontFamily!,
-                        )),
-                buildFontFamilyOption(
-                    "Cursive",
-                    GoogleFonts.cookie().fontFamily!,
-                    () => setTextFontFamily(
-                          GoogleFonts.cookie().fontFamily!,
-                        )),
-              ]),
+              child: buildFontFamilyOptions(),
             ),
           ),
         ]),
@@ -282,6 +257,21 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
         ),
       ],
     );
+  }
+
+  Row buildFontFamilyOptions() {
+    List<Widget> fontFamilyOptions = [];
+    for (int i = 0; i < widget.controller.settings.text.fontFamilyOptions.length; i++) {
+      fontFamilyOptions.add(buildFontFamilyOption(
+          widget.controller.settings.text.fontFamilyOptionsNames[i],
+          widget.controller.settings.text.fontFamilyOptions[i],
+          () => setTextFontFamily(widget.controller.settings.text.fontFamilyOptions[i])));
+    }
+    if (fontFamilyOptions.isEmpty) {
+      fontFamilyOptions.add(buildFontFamilyOption(GoogleFonts.roboto().fontFamily!, GoogleFonts.roboto().fontFamily!,
+          () => setTextFontFamily(GoogleFonts.roboto().fontFamily!)));
+    }
+    return Row(children: fontFamilyOptions);
   }
 
   Widget buildFontFamilyOption(String name, String fontFamily, void Function() onTap) {

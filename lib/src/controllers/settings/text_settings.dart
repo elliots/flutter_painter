@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Represents settings used to create and draw text.
 @immutable
@@ -13,10 +14,8 @@ class TextSettings {
   /// However, you won't be able to listen to changes in user input focus.
   final FocusNode? focusNode;
 
-  final String doneText;
-  final String boldText;
-  final String serifText;
-  final String classicText;
+  final List<String> fontFamilyOptions;
+  final List<String> fontFamilyOptionsNames;
 
   /// Creates a [TextSettings] with the given [textStyle] and [focusNode].
   const TextSettings({
@@ -25,16 +24,17 @@ class TextSettings {
       color: Colors.black,
     ),
     this.focusNode,
-    this.doneText = "Done",
-    this.boldText ="Bold",
-    this.serifText = "Serif",
-    this.classicText = "Classic",
+    this.fontFamilyOptions = const [],
+    this.fontFamilyOptionsNames = const [],
   });
 
   /// Creates a copy of this but with the given fields replaced with the new values.
   TextSettings copyWith({TextStyle? textStyle, FocusNode? focusNode}) {
     return TextSettings(
-        textStyle: textStyle ?? this.textStyle,
-        focusNode: focusNode ?? this.focusNode);
+      textStyle: textStyle ?? this.textStyle,
+      focusNode: focusNode ?? this.focusNode,
+      fontFamilyOptions: fontFamilyOptions,
+      fontFamilyOptionsNames: fontFamilyOptionsNames,
+    );
   }
 }

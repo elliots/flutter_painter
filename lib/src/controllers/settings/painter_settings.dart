@@ -9,8 +9,10 @@ import 'settings.dart';
 /// Enum representing different states that painting can be.
 enum PainterMode {
   select,
-
   zoom,
+
+  /// Free-style painting is enabled in erasing mode; used to erase drawings.
+  erase,
 
   /// Free-style painting is enabled in drawing mode; used to draw scribbles.
   pen,
@@ -20,28 +22,22 @@ enum PainterMode {
 
   /// Free-style painting is enabled in ink freehand mode; used to create drawings.
   inkFreehand,
-
-  /// Free-style painting is enabled in erasing mode; used to erase drawings.
-  erase,
-
+  pictureBrush1,
+  dots,
 }
 
 extension PainterModeExtension on PainterMode {
   bool get isAFreestyleMode {
-    switch (this) {
-      case PainterMode.pen:
-        return true;
-      case PainterMode.pencil:
-        return true;
-      case PainterMode.inkFreehand:
-        return true;
-      case PainterMode.erase:
-        return true;
-      default:
-        return false;
-    }
+    return (paintBrushModes + [PainterMode.erase]).contains(this);
   }
 }
+
+List<PainterMode> paintBrushModes = [
+  PainterMode.pen,
+  PainterMode.pencil,
+  PainterMode.inkFreehand,
+  PainterMode.pictureBrush1,
+];
 
 /// Represents all the settings used to create and draw drawables.
 @immutable

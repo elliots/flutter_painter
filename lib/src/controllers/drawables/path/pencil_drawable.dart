@@ -113,4 +113,35 @@ class PencilDrawable extends PathDrawable {
     // Draw the path on the canvas
     canvas.drawPath(path, paint);
   }
+
+
+  static Set<Object> generateNoise(Offset initialOffset, double range) {
+    List<Offset> points = [];
+    List<double> opacities = [];
+    for (int i = 0; i < 10; i++) {
+      var percentOfRange1 = getPercentOfRange(range);
+      var percentOfRange2 = getPercentOfRange(range);
+      double opacity = 1 - max(percentOfRange1, percentOfRange2) * 0.5;
+      points.add(Offset(addVariance(initialOffset.dx, percentOfRange1, range),
+          addVariance(initialOffset.dy, percentOfRange2, range)));
+      opacities.add(opacity);
+    }
+    return {points, opacities};
+  }
+
+  static double getPercentOfRange(double range) {
+    double percentOfRange = Random().nextInt(10000) / 10000;
+    // convert uniform distribution to quadratic, more values close to 0
+    percentOfRange = percentOfRange;// * percentOfRange;
+    return percentOfRange;
+  }
+
+  static double addVariance(double source, double percentOfRange, double range) {
+    // Plus or minus
+    if (Random().nextBool()) {
+      return source + percentOfRange * range;
+    } else {
+      return source - percentOfRange * range;
+    }
+  }
 }

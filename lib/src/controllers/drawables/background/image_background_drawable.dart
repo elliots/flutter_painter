@@ -23,7 +23,7 @@ class ImageBackgroundDrawable extends BackgroundDrawable {
 
   @override
   Size getSize() {
-    return Size(image.width.toDouble()/4, image.height.toDouble()/4);
+    return Size(image.width.toDouble(), image.height.toDouble());
   }
 // /// Compares two [ImageBackgroundDrawable]s for equality.
 // @override

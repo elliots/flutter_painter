@@ -95,7 +95,15 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
 
       // Add the drawable to the controller's drawables
       PainterController.of(context).addDrawables([drawable]);
+    } else if (painterMode == PainterMode.pictureBrush1) {
+      drawable = PictureBrushDrawable(
+        path: [_globalToLocal(globalPosition)],
+        color: settings.color,
+        strokeWidth: settings.strokeWidth,
+      );
 
+      // Add the drawable to the controller's drawables
+      PainterController.of(context).addDrawables([drawable]);
     } else {
       return;
     }
@@ -114,7 +122,7 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
     final PathDrawable newDrawable;
     if (painterMode == PainterMode.pencil) {
       // If the mode is pencil add noise
-      Set<Object> noise = generateNoise(_globalToLocal(globalPosition), drawable.strokeWidth);
+      Set<Object> noise = PencilDrawable.generateNoise(_globalToLocal(globalPosition), drawable.strokeWidth);
       newDrawable = (drawable as PencilDrawable).copyWith(
         path: List<Offset>.from(drawable.path)..addAll(noise.first as List<Offset>),
         opacities: List<double>.from(drawable.opacities)..addAll(noise.last as List<double>),
@@ -129,36 +137,6 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
     PainterController.of(context).replaceDrawable(drawable, newDrawable, newAction: false);
     // Update the current drawable to be the new copy
     this.drawable = newDrawable;
-  }
-
-  Set<Object> generateNoise(Offset initialOffset, double range) {
-    List<Offset> points = [];
-    List<double> opacities = [];
-    for (int i = 0; i < 10; i++) {
-      var percentOfRange1 = getPercentOfRange(range);
-      var percentOfRange2 = getPercentOfRange(range);
-      double opacity = 1 - max(percentOfRange1, percentOfRange2) * 0.5;
-      points.add(Offset(addVariance(initialOffset.dx, percentOfRange1, range),
-          addVariance(initialOffset.dy, percentOfRange2, range)));
-      opacities.add(opacity);
-    }
-    return {points, opacities};
-  }
-
-  double getPercentOfRange(double range) {
-    double percentOfRange = Random().nextInt(10000) / 10000;
-    // convert uniform distribution to quadratic, more values close to 0
-    percentOfRange = percentOfRange;// * percentOfRange;
-    return percentOfRange;
-  }
-
-  double addVariance(double source, double percentOfRange, double range) {
-    // Plus or minus
-    if (Random().nextBool()) {
-      return source + percentOfRange * range;
-    } else {
-      return source - percentOfRange * range;
-    }
   }
 
   /// Callback when the user removes all pointers from the widget.
