@@ -133,7 +133,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
                       icon: const Icon(
                         PhosphorIcons.paintBrush,
                       ),
-                      onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BrushPreviews())),
+                      onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => BrushPreviews(painterController: controller,))),
                     ),
                     // Delete the selected drawable
                     IconButton(
@@ -223,7 +223,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
                                   ),
                                 ],
                               ),
-                              if (controller.painterMode == PainterMode.pictureBrush1)
+                              if (controller.painterMode == PainterMode.paintBrush)
                                 Row(
                                   children: [
                                     const Expanded(flex: 1, child: Text("Color")),
@@ -398,7 +398,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
               IconButton(
                 icon: Icon(
                   PhosphorIcons.eraser,
-                  color: controller.painterMode == PainterMode.erase ? Theme.of(context).accentColor : null,
+                  color: controller.painterMode == PainterMode.eraser ? Theme.of(context).accentColor : null,
                 ),
                 onPressed: toggleFreeStyleErase,
               ),
@@ -406,7 +406,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
               IconButton(
                 icon: Icon(
                   PhosphorIcons.scribbleLoop,
-                  color: controller.painterMode == PainterMode.pictureBrush1 ? Theme.of(context).accentColor : null,
+                  color: controller.painterMode == PainterMode.paintBrush ? Theme.of(context).accentColor : null,
                 ),
                 onPressed: toggleFreeStyleDraw,
               ),
@@ -498,11 +498,11 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
 
   void toggleFreeStyleDraw() {
     controller.painterMode =
-        controller.painterMode != PainterMode.pictureBrush1 ? PainterMode.pictureBrush1 : PainterMode.select;
+        controller.painterMode != PainterMode.paintBrush ? PainterMode.paintBrush : PainterMode.select;
   }
 
   void toggleFreeStyleErase() {
-    controller.painterMode = controller.painterMode != PainterMode.erase ? PainterMode.erase : PainterMode.select;
+    controller.painterMode = controller.painterMode != PainterMode.eraser ? PainterMode.eraser : PainterMode.select;
   }
 
   void addText() {
@@ -522,7 +522,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
               imagesLinks: imageLinks,
             ));
     if (imageLink == null) return;
-    controller.addImage(await NetworkImage(imageLink).image, const Size(100, 100));
+    controller.addImage(await NetworkImage(imageLink).image, size: const Size(100, 100));
   }
 
   void setFreeStyleStrokeWidth(double value) {

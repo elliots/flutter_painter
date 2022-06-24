@@ -23,6 +23,7 @@ class Painter extends CustomPainter {
     this.scale,
   });
 
+  static int x = 0;
   /// Paints the drawables onto the [canvas] of size [size].
   @override
   void paint(Canvas canvas, Size size) {
@@ -44,6 +45,7 @@ class Painter extends CustomPainter {
     canvas.saveLayer(Rect.largest, Paint());
 
     // Draw all the drawables
+    print("Drawing drawables");
     for (final drawable in drawables.where((drawable) => drawable.isNotHidden)) {
       drawable.draw(canvas, _scale ?? size);
     }

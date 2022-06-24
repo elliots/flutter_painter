@@ -10,16 +10,16 @@ import '../path_drawable.dart';
 import 'dart:ui' as ui;
 
 /// Pencil Drawable (pencil scribble).
-class GenericDotDrawable extends PathDrawable {
+class JaggedDrawable extends PathDrawable {
   /// The color the path will be drawn with.
   final Color color;
 
-  late final List<double> opacities;
-  late final List<Offset> points;
-  /// Creates a [GenericDotDrawable] to draw [path].
+  late final List<DotPoint> dots;
+
+  /// Creates a [JaggedDrawable] to draw [path].
   ///
   /// The path will be drawn with the passed [color] and [strokeWidth] if provided.
-  GenericDotDrawable({
+  JaggedDrawable({
     required List<Offset> path,
     double strokeWidth = 1,
     this.color = Colors.black,
@@ -28,20 +28,18 @@ class GenericDotDrawable extends PathDrawable {
     assert(path.isNotEmpty, 'The path cannot be an empty list');
     assert(strokeWidth > 0, 'The stroke width cannot be less than or equal to 0');
 
-    var result = NoiseGenerator.pathPointsToPencilPoints(path, strokeWidth);
-    points = result.first as List<Offset>;
-    opacities = result.last as List<double>;
+    dots = NoiseGenerator.pathPointsToPencilPoints(path, strokeWidth, true, 2);
   }
 
   /// Creates a copy of this but with the given fields replaced with the new values.
   @override
-  GenericDotDrawable copyWith({
+  JaggedDrawable copyWith({
     bool? hidden,
     List<Offset>? path,
     Color? color,
     double? strokeWidth,
   }) {
-    return GenericDotDrawable(
+    return JaggedDrawable(
       path: path ?? this.path,
       color: color ?? this.color,
       strokeWidth: strokeWidth ?? this.strokeWidth,
@@ -68,43 +66,40 @@ class GenericDotDrawable extends PathDrawable {
       captureNotStarted = true;
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
+      var dpr = ui.window.devicePixelRatio;
+      canvas.scale(dpr);
       // Create a UI path to draw
       final path = Path();
 
       // Start path from the first point
-      path.moveTo(points[0].dx, points[0].dy);
-      path.lineTo(points[0].dx, points[0].dy);
+      path.moveTo(dots[0].position.dx, dots[0].position.dy);
+      path.lineTo(dots[0].position.dx, dots[0].position.dy);
 
       // Draw a line between each point on the free path
-      int index = 1;
-      this.path.sublist(1).forEach((point) {
+      dots.sublist(1).forEach((dot) {
         Paint newPaint = paint;
-        newPaint.color = color.withOpacity(opacities[index]);
-
-
-        Shapes shapes = Shapes(canvas: canvas, radius: 1, paint: paint, center: Offset(point.dx, point.dy), angle: 0);
-        shapes.drawPolygon(3);
+        newPaint.color = color.withOpacity(dot.opacity * (color.alpha / 255));
+        Shapes shapes = Shapes(canvas: canvas, radius: strokeWidth / 2 * dot.opacity, paint: paint, center: Offset(dot.position.dx, dot.position.dy), angle: 0);
+        shapes.drawPolygon(5, initialAngle: dot.position.dx);
         //canvas.drawCircle(Offset(point.dx, point.dy), strokeWidth / 6 * opacities[index], newPaint);
-        index++;
       });
 
       // Draw the path on the canvas
       canvas.drawPath(path, paint);
-      recorder.endRecording().toImage(size.width.floor(), size.height.floor()).then((value) => myBackground = value);
-    } else {
-      canvas.drawImage(myBackground!, Offset.zero, Paint());
+      recorder.endRecording().toImage((size.width * dpr).floor(), (size.height * dpr).floor()).then((value) => myBackground = value);
+    } else if (myBackground != null) {
+      canvas.drawImageRect(myBackground!, Rect.fromPoints(Offset.zero, Offset(myBackground!.width.toDouble(), myBackground!.height.toDouble())),
+          Rect.fromPoints(Offset.zero, Offset(size.width, size.height)), Paint());
       return;
     }
 
     // Draw a line between each point on the free path
-    int index = 1;
-    points.sublist(1).forEach((point) {
+    dots.sublist(1).forEach((dot) {
       Paint newPaint = paint;
-      newPaint.color = color.withOpacity(opacities[index]);
-      Shapes shapes = Shapes(canvas: canvas, radius: strokeWidth / 2 * opacities[index], paint: paint, center: Offset(point.dx, point.dy), angle: 0);
-      shapes.drawPolygon(5, initialAngle: point.dx);
+      newPaint.color = color.withOpacity(dot.opacity * (color.alpha / 255));
+      Shapes shapes = Shapes(canvas: canvas, radius: strokeWidth / 2 * dot.opacity, paint: paint, center: Offset(dot.position.dx, dot.position.dy), angle: 0);
+      shapes.drawPolygon(5, initialAngle: dot.position.dx);
       //canvas.drawCircle(Offset(point.dx, point.dy), strokeWidth / 6 * opacities[index], newPaint);
-      index++;
     });
   }
 }

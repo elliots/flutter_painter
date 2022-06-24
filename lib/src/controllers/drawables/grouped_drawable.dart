@@ -26,9 +26,13 @@ class GroupedDrawable extends Drawable {
       captureNotStarted = true;
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
+      var dpr = ui.window.devicePixelRatio;
+      canvas.scale(dpr);
       final painter = Painter(
         drawables: drawables,
+        scale: size * dpr
       );
+      print("grouped drawable");
       painter.paint(canvas, size);
       recorder.endRecording().toImage(size.width.floor(), size.height.floor()).then((value) => myBackground = value);
     } else {

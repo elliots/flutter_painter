@@ -22,9 +22,12 @@ class _ShapeWidgetState extends State<_ShapeWidget> {
   /// Getter for shape settings to simplify code.
   ShapeSettings get settings => PainterController.of(context).value.settings.shape;
 
+  /// Getter for controller to simplify code.
+  PainterController get controller => PainterController.of(context);
+
   @override
   Widget build(BuildContext context) {
-    if (settings.factory == null) return widget.child;
+    if (settings.factory == null || controller.painterMode != PainterMode.shape) return widget.child;
     return Container(
       color: Colors.black38,
       child: Stack(
@@ -113,6 +116,7 @@ class _ShapeWidgetState extends State<_ShapeWidget> {
               shape: settings.copyWith(
             factory: null,
           ));
+      PainterController.of(context).painterMode = PainterMode.select;
       SettingsUpdatedNotification(PainterController.of(context).value.settings).dispatch(context);
     }
 

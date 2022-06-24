@@ -12,18 +12,21 @@ class ImageDrawable extends ObjectDrawable {
   /// Whether the image is flipped or not.
   final bool flipped;
 
+  /// If the image should override size/scale and fill the canvas
+  final bool fillCanvas;
+
   /// Creates an [ImageDrawable] with the given [image].
   ImageDrawable({
     required Offset position,
     double rotationAngle = 0,
     double scale = 1,
     Set<ObjectDrawableAssist> assists = const <ObjectDrawableAssist>{},
-    Map<ObjectDrawableAssist, Paint> assistPaints =
-        const <ObjectDrawableAssist, Paint>{},
+    Map<ObjectDrawableAssist, Paint> assistPaints = const <ObjectDrawableAssist, Paint>{},
     bool locked = false,
     bool hidden = false,
     required this.image,
     this.flipped = false,
+    this.fillCanvas = false,
   }) : super(
             position: position,
             rotationAngle: rotationAngle,
@@ -43,8 +46,7 @@ class ImageDrawable extends ObjectDrawable {
     required Size size,
     double rotationAngle = 0,
     Set<ObjectDrawableAssist> assists = const <ObjectDrawableAssist>{},
-    Map<ObjectDrawableAssist, Paint> assistPaints =
-        const <ObjectDrawableAssist, Paint>{},
+    Map<ObjectDrawableAssist, Paint> assistPaints = const <ObjectDrawableAssist, Paint>{},
     bool locked = false,
     bool hidden = false,
     required Image image,
@@ -62,15 +64,17 @@ class ImageDrawable extends ObjectDrawable {
 
   /// Creates a copy of this but with the given fields replaced with the new values.
   @override
-  ImageDrawable copyWith(
-      {bool? hidden,
-      Set<ObjectDrawableAssist>? assists,
-      Offset? position,
-      double? rotation,
-      double? scale,
-      Image? image,
-      bool? flipped,
-      bool? locked}) {
+  ImageDrawable copyWith({
+    bool? hidden,
+    Set<ObjectDrawableAssist>? assists,
+    Offset? position,
+    double? rotation,
+    double? scale,
+    Image? image,
+    bool? flipped,
+    bool? locked,
+    bool? fillCanvas,
+  }) {
     return ImageDrawable(
       hidden: hidden ?? this.hidden,
       assists: assists ?? this.assists,
@@ -80,25 +84,26 @@ class ImageDrawable extends ObjectDrawable {
       image: image ?? this.image,
       flipped: flipped ?? this.flipped,
       locked: locked ?? this.locked,
+      fillCanvas: fillCanvas ?? this.fillCanvas,
     );
   }
 
   /// Draws the image on the provided [canvas] of size [size].
   @override
   void drawObject(Canvas canvas, Size size) {
-    final scaledSize =
-        Offset(image.width.toDouble(), image.height.toDouble()) * scale;
+    final scaledSize = Offset(image.width.toDouble(), image.height.toDouble()) * scale;
     final position = this.position.scale(flipped ? -1 : 1, 1);
 
     if (flipped) canvas.scale(-1, 1);
 
-    // Draw the image onto the canvas.
-    canvas.drawImageRect(
-        image,
-        Rect.fromPoints(Offset.zero,
-            Offset(image.width.toDouble(), image.height.toDouble())),
-        Rect.fromPoints(position - scaledSize / 2, position + scaledSize / 2),
-        Paint());
+    if (fillCanvas) {
+      canvas.drawImageRect(image, Rect.fromPoints(Offset.zero, Offset(image.width.toDouble(), image.height.toDouble())),
+          Rect.fromPoints(Offset.zero, Offset(size.width, size.height)), Paint());
+    } else {
+      // Draw the image onto the canvas.
+      canvas.drawImageRect(image, Rect.fromPoints(Offset.zero, Offset(image.width.toDouble(), image.height.toDouble())),
+          Rect.fromPoints(position - scaledSize / 2, position + scaledSize / 2), Paint());
+    }
   }
 
   /// Calculates the size of the rendered object.

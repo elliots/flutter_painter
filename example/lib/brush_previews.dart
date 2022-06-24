@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_painter/flutter_painter.dart';
 
 class BrushPreviews extends StatefulWidget {
-  const BrushPreviews({Key? key}) : super(key: key);
+  const BrushPreviews({Key? key, required this.painterController}) : super(key: key);
+
+  final PainterController painterController;
 
   @override
   State<BrushPreviews> createState() => _BrushPreviewsState();
@@ -18,45 +20,42 @@ class _BrushPreviewsState extends State<BrushPreviews> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(height: 8),
-          Text("pen"),
-          SizedBox(height: 8),
-          BrushPreview(
-            mode: PainterMode.pen,
-            brushColor: Colors.black, brushSize: 8,
+          SizedBox(
+            width: double.infinity,
           ),
-          SizedBox(height: 8),
-          Text("inkFreehand"),
-          SizedBox(height: 8),
-          BrushPreview(
-            mode: PainterMode.inkFreehand,
-            brushColor: Colors.black, brushSize: 8,
-          ),
-          SizedBox(height: 8),
-          Text("pencil"),
-          SizedBox(height: 8),
-          BrushPreview(
-            mode: PainterMode.pencil,
-            brushColor: Colors.black, brushSize: 8,
-          ),
-          SizedBox(height: 8),
-          Text("pictureBrush1"),
-          SizedBox(height: 8),
-          BrushPreview(
-            mode: PainterMode.pictureBrush1,
-            brushColor: Colors.black, brushSize: 8,
-          ),
-          SizedBox(height: 8),
-          Text("genericDotDrawable"),
-          SizedBox(height: 8),
-          Stack(
-            children: [
-              BrushPreview(
-                mode: PainterMode.dots,
-                brushColor: Colors.black, brushSize: 8,
+          for (PaintBrushStyle brush in PaintBrushStyle.values)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.black,
+                      width: 1.6,
+                      style: widget.painterController.settings.freeStyle.paintBrushStyle == brush
+                          ? BorderStyle.solid
+                          : BorderStyle.none,
+                    )),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () {
+                    widget.painterController.settings = widget.painterController.settings.copyWith(
+                        freeStyle: widget.painterController.settings.freeStyle.copyWith(paintBrushStyle: brush));
+                    setState(() {
+
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 16, 16, 16),
+                    child: BrushPreview(
+                      paintBrushStyle: brush,
+                      brushColor: widget.painterController.settings.freeStyle.color,
+                      brushSize: widget.painterController.settings.freeStyle.strokeWidth,
+                    ),
+                  ),
+                ),
               ),
-            ],
-          ),
+            ),
         ],
       ),
     );

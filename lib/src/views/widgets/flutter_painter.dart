@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
 
+import 'package:floodfill_image/floodfill_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_painter/src/controllers/drawables/path/pencil_drawable.dart';
+import 'package:flutter_painter/src/controllers/drawables/path/dot_brushes/jagged_brush_drawable.dart';
+import 'package:flutter_painter/src/controllers/drawables/path/dot_brushes/pencil_drawable.dart';
 import '../../controllers/drawables/path/ink_freehand_drawable.dart';
-import '../../controllers/drawables/path/picture_brush_drawable.dart';
 import '../../controllers/events/selected_object_drawable_removed_event.dart';
 import '../../controllers/helpers/renderer_check/renderer_check.dart';
 import '../../controllers/drawables/drawable.dart';
@@ -27,12 +29,15 @@ import '../../extensions/painter_controller_helper_extension.dart';
 import 'edit_text_widget/edit_text_widget.dart';
 import 'painter_controller_widget.dart';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 part 'free_style_widget.dart';
 
 part 'text_widget.dart';
 
 part 'object_widget.dart';
+
+part 'bucket_fill_widget.dart';
 
 part 'shape_widget.dart';
 
@@ -173,67 +178,20 @@ class _FlutterPainterWidget extends StatelessWidget {
                     // does not change properly
                     child: Builder(builder: (context) {
                       print("Drawables: " + controller.drawables.length.toString());
+                      //TODO MAYBE CAUSING ISSUES WITH FLICKERING
                       return CustomPaint(
+                        willChange: true,
                         painter: Painter(
-                          drawables: (controller.painterMode == PainterMode.erase ||
-                                  (controller.value.drawables.isNotEmpty &&
-                                      controller.value.drawables.last is EraseDrawable))
+                          drawables: controller.value.drawables.isNotEmpty
                               ? controller.value.drawables
-                              : [],
+                              : [
+                                  PencilDrawable(
+                                    path: [const Offset(0, 0), const Offset(0, 0)],
+                                    strokeWidth: 1,
+                                  ),
+                                ], // pencil drawable fixes a bug where the last drawable wouldn't disappear
                           background: controller.value.background,
                         ),
-                        child: !(controller.painterMode == PainterMode.erase ||
-                                (controller.value.drawables.isNotEmpty &&
-                                    controller.value.drawables.last is EraseDrawable))
-                            ? Stack(
-                                fit: StackFit.expand,
-                                children: [
-                                  CustomPaint(
-                                    willChange: true,
-                                    painter: Painter(
-                                      drawables: controller.value.drawables.isNotEmpty
-                                          ? controller.value.drawables
-                                          : [
-                                              PencilDrawable(
-                                                path: [const Offset(0, 0), const Offset(0, 0)],
-                                                opacities: [1, 1],
-                                                strokeWidth: 1,
-                                              ),
-                                            ], // pencil drawable fixes a bug where the last drawable wouldn't disappear
-                                    ),
-                                  ),
-                                  /*// optimization not working yet
-                                  RepaintBoundary(
-                                    child: CustomPaint(
-                                      isComplex: true, //added
-                                      willChange: false,
-                                      painter: Painter(
-                                        drawables: controller.value.drawables.isNotEmpty
-                                            ? controller.value.drawables
-                                                .sublist(0, controller.value.drawables.length - 1)
-                                            : [],
-                                      ),
-                                    ),
-                                  ),
-                                  CustomPaint(
-                                    willChange: true,
-                                    painter: Painter(
-                                      drawables: controller.value.drawables.isNotEmpty
-                                          ? [controller.value.drawables.last]
-                                          : [
-                                              PencilDrawable(path: [
-                                                Offset(0, 0),
-                                                Offset(0, 0),
-                                              ], opacities: [
-                                                1,
-                                                1
-                                              ], strokeWidth: 1)
-                                            ], // pencil drawable fixes a bug where the last drawable wouldn't disappear
-                                    ),
-                                  ),*/
-                                ],
-                              )
-                            : Container(),
                       );
                     }),
                   ),

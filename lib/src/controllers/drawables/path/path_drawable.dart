@@ -6,10 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../drawable.dart';
-import 'dart:ui' as UI;
-
-ByteData? data;
-UI.Image? image;
 
 /// Free-style Drawable (hand scribble).
 abstract class PathDrawable extends Drawable {
@@ -48,14 +44,7 @@ abstract class PathDrawable extends Drawable {
   @override
   void draw(Canvas canvas, Size size) async {
     // Create a UI path to draw
-    final path = Path();/*
-    if (data == null) {
-      rootBundle.load("packages/flutter_painter/assets/brush.png").then((value) => data = value);
-    }
-    if (image == null && data != null) {
-      decodeImageFromList(Uint8List.view(data!.buffer)).then((value) => image = value);
-    }
-*/
+    final path = Path();
     // Start path from the first point
     path.moveTo(this.path[0].dx, this.path[0].dy);
     path.lineTo(this.path[0].dx, this.path[0].dy);

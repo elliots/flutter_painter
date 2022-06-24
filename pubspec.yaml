@@ -16,6 +16,8 @@ dependencies:
   perfect_freehand: ^1.0.4
   flutter_shapes: ^0.3.0
   collection: ^1.15.0
+  floodfill_image:
+    path: /Users/mikhailszugalew/Documents/GitHub/FloodFill_Image
 
 dev_dependencies:
   flutter_lints: ^1.0.4
@@ -25,8 +27,7 @@ dev_dependencies:
 
 flutter:
   assets:
-    - packages/flutter_painter/assets/
-    - packages/flutter_painter/assets/brush.png
+    - packages/flutter_painter/assets/brush1.png
     - packages/flutter_painter/assets/brush2.png
     - packages/flutter_painter/assets/brush3.png
     - packages/flutter_painter/assets/brush4.png

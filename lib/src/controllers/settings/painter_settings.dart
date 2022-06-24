@@ -11,33 +11,20 @@ enum PainterMode {
   select,
   zoom,
 
-  /// Free-style painting is enabled in erasing mode; used to erase drawings.
-  erase,
+  /// Free-style painting is enabled in erasing mode.
+  eraser,
 
-  /// Free-style painting is enabled in drawing mode; used to draw scribbles.
-  pen,
-
-  /// Free-style painting is enabled in pencil mode; used to create pencil drawings.
-  pencil,
-
-  /// Free-style painting is enabled in ink freehand mode; used to create drawings.
-  inkFreehand,
-  pictureBrush1,
-  dots,
+  /// Free-style painting is enabled in drawing mode.
+  paintBrush,
+  bucketFill,// not implemented
+  shape,
 }
 
 extension PainterModeExtension on PainterMode {
   bool get isAFreestyleMode {
-    return (paintBrushModes + [PainterMode.erase]).contains(this);
+    return ([PainterMode.paintBrush, PainterMode.eraser]).contains(this);
   }
 }
-
-List<PainterMode> paintBrushModes = [
-  PainterMode.pen,
-  PainterMode.pencil,
-  PainterMode.inkFreehand,
-  PainterMode.pictureBrush1,
-];
 
 /// Represents all the settings used to create and draw drawables.
 @immutable

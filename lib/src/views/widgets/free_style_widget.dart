@@ -48,6 +48,9 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
   /// Getter for [PainterMode] from `widget.controller.value` to make code more readable.
   PainterMode get painterMode => PainterController.of(context).value.settings.painterMode;
 
+  /// Getter for [PaintBrushStyle] from `widget.controller.value` to make code more readable.
+  PaintBrushStyle get paintBrushStyle => PainterController.of(context).value.settings.freeStyle.paintBrushStyle;
+
   /// Getter for [ShapeSettings] from `widget.controller.value` to make code more readable.
   ShapeSettings get shapeSettings => PainterController.of(context).value.settings.shape;
 
@@ -58,50 +61,16 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
 
     // Create a new free-style drawable representing the current drawing
     final PathDrawable drawable;
-    if (painterMode == PainterMode.pen) {
-      drawable = FreeStyleDrawable(
-        path: [_globalToLocal(globalPosition)],
-        color: settings.color,
-        strokeWidth: settings.strokeWidth,
-      );
-
-      // Add the drawable to the controller's drawables
-      PainterController.of(context).addDrawables([drawable]);
-    } else if (painterMode == PainterMode.erase) {
+    if (painterMode == PainterMode.eraser) {
       drawable = EraseDrawable(
         path: [_globalToLocal(globalPosition)],
         strokeWidth: settings.strokeWidth,
       );
       PainterController.of(context).groupDrawables();
-
       // Add the drawable to the controller's drawables
       PainterController.of(context).addDrawables([drawable], newAction: false);
-    } else if (painterMode == PainterMode.pencil) {
-      drawable = PencilDrawable(
-        path: [_globalToLocal(globalPosition)],
-        opacities: [1],
-        color: settings.color,
-        strokeWidth: settings.strokeWidth,
-      );
-
-      // Add the drawable to the controller's drawables
-      PainterController.of(context).addDrawables([drawable]);
-    } else if (painterMode == PainterMode.inkFreehand) {
-      drawable = InkFreehandDrawable(
-        path: [_globalToLocal(globalPosition)],
-        color: settings.color,
-        strokeWidth: settings.strokeWidth,
-      );
-
-      // Add the drawable to the controller's drawables
-      PainterController.of(context).addDrawables([drawable]);
-    } else if (painterMode == PainterMode.pictureBrush1) {
-      drawable = PictureBrushDrawable(
-        path: [_globalToLocal(globalPosition)],
-        color: settings.color,
-        strokeWidth: settings.strokeWidth,
-      );
-
+    } else if (painterMode == PainterMode.paintBrush) {
+      drawable = paintBrushStyle.getDrawable([_globalToLocal(globalPosition)], settings.strokeWidth, settings.color);
       // Add the drawable to the controller's drawables
       PainterController.of(context).addDrawables([drawable]);
     } else {
@@ -119,20 +88,9 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
     if (drawable == null) return;
 
     // Update the path in a copy of the current drawable
-    final PathDrawable newDrawable;
-    if (painterMode == PainterMode.pencil) {
-      // If the mode is pencil add noise
-      Set<Object> noise = PencilDrawable.generateNoise(_globalToLocal(globalPosition), drawable.strokeWidth);
-      newDrawable = (drawable as PencilDrawable).copyWith(
-        path: List<Offset>.from(drawable.path)..addAll(noise.first as List<Offset>),
-        opacities: List<double>.from(drawable.opacities)..addAll(noise.last as List<double>),
-      );
-    } else {
-      // Otherwise just add the new point
-      newDrawable = drawable.copyWith(
-        path: List<Offset>.from(drawable.path)..add(_globalToLocal(globalPosition)),
-      );
-    }
+    final PathDrawable newDrawable = drawable.copyWith(
+      path: List<Offset>.from(drawable.path)..add(_globalToLocal(globalPosition)),
+    );
     // Replace the current drawable with the copy with the added point
     PainterController.of(context).replaceDrawable(drawable, newDrawable, newAction: false);
     // Update the current drawable to be the new copy

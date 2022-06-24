@@ -973,6 +973,7 @@ class _ObjectControlBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Container();
     ThemeData? theme = Theme.of(context);
     if (theme == ThemeData.fallback()) theme = null;
     final activeColor = this.activeColor ?? theme?.accentColor ?? Colors.blue;
