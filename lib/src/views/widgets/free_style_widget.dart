@@ -20,25 +20,46 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
   /// The current drawable being drawn.
   PathDrawable? drawable;
 
+  int _pointers = 0;
+
   @override
   Widget build(BuildContext context) {
     if (!painterMode.isAFreestyleMode || shapeSettings.factory != null) {
       return widget.child;
     }
 
-    return RawGestureDetector(
-      behavior: HitTestBehavior.opaque,
-      gestures: {
-        _DragGestureDetector: GestureRecognizerFactoryWithHandlers<_DragGestureDetector>(
-          () => _DragGestureDetector(
-            onHorizontalDragDown: _handleHorizontalDragDown,
-            onHorizontalDragUpdate: _handleHorizontalDragUpdate,
-            onHorizontalDragUp: _handleHorizontalDragUp,
-          ),
-          (_) {},
-        ),
+    return Listener(
+      behavior: HitTestBehavior.deferToChild,
+      onPointerDown: (_) {
+        _pointers++;
+        if (_pointers >= 2) {
+          _handleTwoPointersDown();
+        }
       },
-      child: widget.child,
+      onPointerCancel: (_) {
+        _pointers--;
+      },
+      onPointerUp: (_) {
+        _pointers--;
+      },
+      child: RawGestureDetector(
+        behavior: HitTestBehavior.opaque,
+        gestures: {
+          _DragGestureDetector: GestureRecognizerFactoryWithHandlers<_DragGestureDetector>(
+            () => _DragGestureDetector(
+              onHorizontalDragDown: _handleHorizontalDragDown,
+              onHorizontalDragUpdate: _handleHorizontalDragUpdate,
+              onHorizontalDragUp: _handleHorizontalDragUp,
+            ),
+            (_) {},
+          ),
+        },
+        child: PainterController.of(context).painterMode.isAFreestyleMode
+            ? IgnorePointer(
+                child: widget.child,
+              )
+            : widget.child,
+      ),
     );
   }
 
@@ -99,10 +120,21 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
 
   /// Callback when the user removes all pointers from the widget.
   void _handleHorizontalDragUp() {
+    if (drawable == null) return;
     DrawableCreatedNotification(drawable).dispatch(context);
 
     /// Reset the current drawable for the user to draw a new one next time
     drawable = null;
+  }
+
+  void _handleTwoPointersDown() {
+    final drawable = this.drawable;
+    if (drawable == null) return;
+    int length = drawable.path.length;
+    if (length < 100) {
+      PainterController.of(context).removeDrawable(drawable, newAction: false);
+    }
+    this.drawable = null;
   }
 
   Offset _globalToLocal(Offset globalPosition) {

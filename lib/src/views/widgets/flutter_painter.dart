@@ -174,11 +174,10 @@ class _FlutterPainterWidget extends StatelessWidget {
                   child: _ObjectWidget(
                     trashKey: trashKey,
                     // controller: controller,
-                    interactionEnabled: !(controller.settings.painterMode == PainterMode.zoom),
+                    interactionEnabled: !(controller.settings.painterMode == PainterMode.zoom || controller.painterMode.isAFreestyleMode),
                     // does not change properly
                     child: Builder(builder: (context) {
                       print("Drawables: " + controller.drawables.length.toString());
-                      //TODO MAYBE CAUSING ISSUES WITH FLICKERING
                       return CustomPaint(
                         willChange: true,
                         painter: Painter(
@@ -207,7 +206,7 @@ class _FlutterPainterWidget extends StatelessWidget {
                       minScale: controller.settings.scale.minScale,
                       maxScale: controller.settings.scale.maxScale,
                       panEnabled: controller.painterMode == PainterMode.zoom,
-                      scaleEnabled: controller.painterMode == PainterMode.zoom,
+                      scaleEnabled: controller.painterMode == PainterMode.zoom || controller.painterMode.isAFreestyleMode,
                       child: controller.painterMode == PainterMode.zoom
                           ? IgnorePointer(
                               child: child,

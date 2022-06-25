@@ -30,13 +30,15 @@ class GroupedDrawable extends Drawable {
       canvas.scale(dpr);
       final painter = Painter(
         drawables: drawables,
-        scale: size * dpr
+        scale: size
       );
       print("grouped drawable");
       painter.paint(canvas, size);
-      recorder.endRecording().toImage(size.width.floor(), size.height.floor()).then((value) => myBackground = value);
-    } else {
-      canvas.drawImage(myBackground!, Offset.zero, Paint());
+      recorder.endRecording().toImage((size.width * dpr).floor(), (size.height * dpr).floor()).then((value) => myBackground = value);
+    } else if (myBackground != null) {
+      canvas.drawImageRect(myBackground!, Rect.fromPoints(Offset.zero, Offset(myBackground!.width.toDouble(), myBackground!.height.toDouble())),
+          Rect.fromPoints(Offset.zero, Offset(size.width, size.height)), Paint());
+      return;
     }
 
     if (myBackground == null) {
