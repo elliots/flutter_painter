@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
+
 import '../../views/painters/painter.dart';
 import 'drawable.dart';
 import 'dart:ui' as ui;
@@ -10,6 +12,8 @@ class GroupedDrawable extends Drawable {
 
   /// The renderedImage as background.
   ui.Image? myBackground;
+
+  GlobalKey key = GlobalKey();
 
   /// Creates a new [GroupedDrawable] with the list of [drawables].
   GroupedDrawable({
@@ -23,7 +27,7 @@ class GroupedDrawable extends Drawable {
   @override
   void draw(Canvas canvas, Size size) {
     if (myBackground == null && captureNotStarted) {
-      captureNotStarted = true;
+      captureNotStarted = false;
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
       var dpr = ui.window.devicePixelRatio;
@@ -32,16 +36,18 @@ class GroupedDrawable extends Drawable {
         drawables: drawables,
         scale: size
       );
-      print("grouped drawable");
+      print("drawing grouped drawable children: ${drawables.length} to save " + key.toString());
       painter.paint(canvas, size);
       recorder.endRecording().toImage((size.width * dpr).floor(), (size.height * dpr).floor()).then((value) => myBackground = value);
     } else if (myBackground != null) {
+      print("drawing grouped drawable background " + key.toString());
       canvas.drawImageRect(myBackground!, Rect.fromPoints(Offset.zero, Offset(myBackground!.width.toDouble(), myBackground!.height.toDouble())),
           Rect.fromPoints(Offset.zero, Offset(size.width, size.height)), Paint());
       return;
     }
 
     if (myBackground == null) {
+      print("drawing grouped drawable children: ${drawables.length} " + key.toString());
       for (final drawable in drawables) {
         drawable.draw(canvas, size);
       }

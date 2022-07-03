@@ -62,8 +62,9 @@ class PencilDrawable extends PathDrawable {
   /// Draws the free-style [path] on the provided [canvas] of size [size].
   @override
   void draw(Canvas canvas, Size size) {
+    if (dots.isEmpty) return;
     if (myBackground == null && captureNotStarted) {
-      captureNotStarted = true;
+      captureNotStarted = false;
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
       var dpr = ui.window.devicePixelRatio;

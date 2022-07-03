@@ -10,11 +10,11 @@ enum PaintBrushStyle {
   pen,
   ink,
   pencil,
-  pictureBrush1,
   pictureBrush2,
+  pictureBrush1,
   pictureBrush3,
-  pictureBrush4,
   jagged,
+  pictureBrush4,
 }
 
 extension PaintBrushStyleExtension on PaintBrushStyle {

@@ -18,8 +18,11 @@ extension PainterControllerHelper on PainterController {
   /// The current background drawable directly from `value`.
   BackgroundDrawable? get background => value.background;
 
-  /// The unmodifiable list of drawables directly from `value`.
-  List<Drawable> get drawables => value.drawables;
+  /// The unmodifiable list of paint level drawables directly from `value`.
+  List<Drawable> get paintLevelDrawables => value.paintLevelDrawables;
+
+  /// The unmodifiable list of top level drawables directly from `value`.
+  List<Drawable> get topLevelDrawables => value.topLevelDrawables;
 
   /// The object settings directly from the painter settings.
   ObjectSettings get objectSettings => settings.object;

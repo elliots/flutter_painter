@@ -177,12 +177,12 @@ class _FlutterPainterWidget extends StatelessWidget {
                     interactionEnabled: !(controller.settings.painterMode == PainterMode.zoom || controller.painterMode.isAFreestyleMode),
                     // does not change properly
                     child: Builder(builder: (context) {
-                      print("Drawables: " + controller.drawables.length.toString());
+                      print("Building painter with drawables of count: ${(controller.value.paintLevelDrawables.length + controller.value.topLevelDrawables.length)}");
                       return CustomPaint(
                         willChange: true,
                         painter: Painter(
-                          drawables: controller.value.drawables.isNotEmpty
-                              ? controller.value.drawables
+                          drawables: (controller.value.paintLevelDrawables.isNotEmpty || controller.value.topLevelDrawables.isNotEmpty)
+                              ? (controller.value.paintLevelDrawables + controller.value.topLevelDrawables)
                               : [
                                   PencilDrawable(
                                     path: [const Offset(0, 0), const Offset(0, 0)],

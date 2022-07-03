@@ -64,7 +64,7 @@ class _TextWidgetState extends State<_TextWidget> {
     final drawable = notification.drawable;
 
     if (drawable is TextDrawable) {
-      final oldDrawable = PainterController.of(context).drawables.firstWhere((element) {
+      final oldDrawable = PainterController.of(context).topLevelDrawables.firstWhere((element) {
         if (element is TextDrawable) {
           if (element.key == drawable.key) {
             return true;
@@ -72,7 +72,7 @@ class _TextWidgetState extends State<_TextWidget> {
         }
         return false;
       }, orElse: () => drawable) as TextDrawable;
-      PainterController.of(context).removeDrawable(oldDrawable, newAction: true);
+      PainterController.of(context).removeDrawable(oldDrawable, false, newAction: true);
       openTextEditor(oldDrawable);
       // Mark notification as handled
       return true;

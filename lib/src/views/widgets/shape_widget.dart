@@ -58,8 +58,9 @@ class _ShapeWidgetState extends State<_ShapeWidget> {
 
     final shapeDrawable = factory.create(initialStartPosition, settings.paint);
 
+    //TODO, should this be paint level
     setState(() {
-      PainterController.of(context).addDrawables([shapeDrawable]);
+      PainterController.of(context).addDrawables(paintLevelDrawables: [], topLevelDrawables: [shapeDrawable]);
       currentShapeDrawable = shapeDrawable;
     });
   }
@@ -130,7 +131,7 @@ class _ShapeWidgetState extends State<_ShapeWidget> {
   /// Replaces a drawable with a new one.
   void updateDrawable(ObjectDrawable oldDrawable, ObjectDrawable newDrawable) {
     setState(() {
-      PainterController.of(context).replaceDrawable(oldDrawable, newDrawable, newAction: false);
+      PainterController.of(context).replaceDrawable(oldDrawable, newDrawable, false, newAction: false);
     });
   }
 }

@@ -86,7 +86,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
   /// Getter for the list of [ObjectDrawable]s in the controller
   /// to make code more readable.
   List<ObjectDrawable> get drawables =>
-      PainterController.of(context).value.drawables.whereType<ObjectDrawable>().toList();
+      PainterController.of(context).value.topLevelDrawables.whereType<ObjectDrawable>().toList();
 
   /// A flag on whether to cancel controls animation or not.
   /// This is used to cancel the animation after the selected object
@@ -223,8 +223,8 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                       if (controller?.selectedObjectDrawable == null) {
                         print("selected");
                         setState(() {
-                          controller?.removeDrawable(entry.value, newAction: true);
-                          controller?.addDrawables([entry.value], newAction: false);
+                          controller?.removeDrawable(entry.value, false, newAction: true);
+                          controller?.addDrawables(paintLevelDrawables: [], topLevelDrawables: [entry.value], newAction: false);
                           controller?.selectObjectDrawable(entry.value);
                           _currentScaleEntry = entry;
                           print("_currentScaleEntry set to entry");
@@ -241,8 +241,8 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                           if (_currentScaleEntry != null) {
                             final drawable = onDrawableScaleEnd(_currentScaleEntry!);
                             if (drawable == null) return;
-                            controller?.removeDrawable(drawable, newAction: false);
-                            controller?.addDrawables([drawable], newAction: false);
+                            controller?.removeDrawable(drawable, false, newAction: false);
+                            controller?.addDrawables(paintLevelDrawables: [], topLevelDrawables: [drawable], newAction: false);
                             _currentScaleEntry = null;
                             print("_currentScaleEntry set to null");
                           }
@@ -260,8 +260,8 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                             final newDrawable = onDrawableScaleEnd(_currentScaleEntry!);
                             if (newDrawable == null) return;
                             //todo possible text error
-                            controller?.removeDrawable(newDrawable, newAction: false);
-                            controller?.addDrawables([newDrawable], newAction: false);
+                            controller?.removeDrawable(newDrawable, false, newAction: false);
+                            controller?.addDrawables(paintLevelDrawables: [], topLevelDrawables: [newDrawable], newAction: false);
                             _currentScaleEntry = null;
                             print("_currentScaleEntry set to null");
                             if (!scaleStarted) {
@@ -589,7 +589,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
 
     if (trashCanHighlighted) {
       setState(() {
-        PainterController.of(context).removeDrawable(drawable, newAction: false);
+        PainterController.of(context).removeDrawable(drawable, false, newAction: false);
       });
       return null;
     } else {
@@ -776,7 +776,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
   /// Replaces a drawable with a new one.
   void updateDrawable(ObjectDrawable oldDrawable, ObjectDrawable newDrawable, {bool newAction = false}) {
     setState(() {
-      PainterController.of(context).replaceDrawable(oldDrawable, newDrawable, newAction: newAction);
+      PainterController.of(context).replaceDrawable(oldDrawable, newDrawable, false, newAction: newAction);
     });
   }
 

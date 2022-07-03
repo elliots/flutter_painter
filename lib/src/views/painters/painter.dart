@@ -45,7 +45,6 @@ class Painter extends CustomPainter {
     canvas.saveLayer(Rect.largest, Paint());
 
     // Draw all the drawables
-    print("Drawing drawables");
     for (final drawable in drawables.where((drawable) => drawable.isNotHidden)) {
       drawable.draw(canvas, _scale ?? size);
     }

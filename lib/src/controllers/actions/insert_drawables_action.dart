@@ -8,14 +8,17 @@ import 'action.dart';
 /// An action of inserting a list of drawables to the [PainterController] at
 /// a specific index.
 class InsertDrawablesAction extends ControllerAction<void, void> {
-  /// The list of drawables to be inserted into the controller.
-  final List<Drawable> drawables;
+  /// The list of paint level drawables to be inserted into the controller.
+  final List<Drawable> paintLevelDrawables;
+
+  /// The list of top level drawables to be inserted into the controller.
+  final List<Drawable> topLevelDrawables;
 
   /// The index at which the drawables are be inserted.
   final int index;
 
   /// Creates an [InsertDrawablesAction] with the [index] to insert the [drawables] at.
-  InsertDrawablesAction(this.index, this.drawables);
+  InsertDrawablesAction(this.index, this.paintLevelDrawables, this.topLevelDrawables);
 
   /// Performs the action.
   ///
@@ -24,9 +27,14 @@ class InsertDrawablesAction extends ControllerAction<void, void> {
   @override
   void perform$(PainterController controller) {
     final value = controller.value;
-    final currentDrawables = List<Drawable>.from(value.drawables);
-    currentDrawables.insertAll(index, drawables);
-    controller.value = value.copyWith(drawables: currentDrawables);
+    final currentPaintLevelDrawables = List<Drawable>.from(value.paintLevelDrawables);
+    currentPaintLevelDrawables.insertAll(index, paintLevelDrawables);
+    final currentTopLevelDrawables = List<Drawable>.from(value.topLevelDrawables);
+    currentTopLevelDrawables.insertAll(index, topLevelDrawables);
+    controller.value = value.copyWith(
+      paintLevelDrawables: currentPaintLevelDrawables,
+      topLevelDrawables: currentTopLevelDrawables,
+    );
   }
 
   /// Un-performs the action.
@@ -37,8 +45,13 @@ class InsertDrawablesAction extends ControllerAction<void, void> {
   @override
   void unperform$(PainterController controller) {
     final value = controller.value;
-    final currentDrawables = List<Drawable>.from(value.drawables);
-    currentDrawables.removeRange(index, index + drawables.length);
-    controller.value = value.copyWith(drawables: currentDrawables);
+    final currentPaintLevelDrawables = List<Drawable>.from(value.paintLevelDrawables);
+    currentPaintLevelDrawables.removeRange(index, index + paintLevelDrawables.length);
+    final currentTopLevelDrawables = List<Drawable>.from(value.topLevelDrawables);
+    currentTopLevelDrawables.removeRange(index, index + topLevelDrawables.length);
+    controller.value = value.copyWith(
+      paintLevelDrawables: currentPaintLevelDrawables,
+      topLevelDrawables: currentTopLevelDrawables,
+    );
   }
 }

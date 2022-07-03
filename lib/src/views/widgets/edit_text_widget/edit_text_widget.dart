@@ -142,7 +142,7 @@ class EditTextWidgetState extends State<EditTextWidget> with WidgetsBindingObser
   /// If the text is empty, it will remove the drawable from the controller.
   void onEditingComplete() {
     if (textEditingController.text.trim().isEmpty) {
-      widget.controller.removeDrawable(widget.drawable);
+      widget.controller.removeDrawable(widget.drawable, false);
       if (!widget.isNew) {
         DrawableDeletedNotification(widget.drawable).dispatch(context);
       }
@@ -166,7 +166,7 @@ class EditTextWidgetState extends State<EditTextWidget> with WidgetsBindingObser
 
   /// Updates the drawable in the painter controller.
   void updateDrawable(TextDrawable oldDrawable, TextDrawable newDrawable) {
-    widget.controller.addDrawables([newDrawable], newAction: widget.isNew);
+    widget.controller.addDrawables(paintLevelDrawables: [], topLevelDrawables: [newDrawable], newAction: widget.isNew);
   }
 
   /// Builds a null widget for the [TextField] counter.

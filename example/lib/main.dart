@@ -582,14 +582,14 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
 
   void removeSelectedDrawable() {
     final selectedDrawable = controller.selectedObjectDrawable;
-    if (selectedDrawable != null) controller.removeDrawable(selectedDrawable);
+    if (selectedDrawable != null) controller.removeDrawable(selectedDrawable, false);
   }
 
   void flipSelectedImageDrawable() {
     final imageDrawable = controller.selectedObjectDrawable;
     if (imageDrawable is! ImageDrawable) return;
 
-    controller.replaceDrawable(imageDrawable, imageDrawable.copyWith(flipped: !imageDrawable.flipped));
+    controller.replaceDrawable(imageDrawable, imageDrawable.copyWith(flipped: !imageDrawable.flipped), false);
   }
 }
 

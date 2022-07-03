@@ -104,7 +104,7 @@ class PictureBrushDrawable extends PathDrawable {
   void draw(Canvas canvas, Size size) {
     if (myBackground == null && captureNotStarted) {
       print("Capturing image brush drawable");
-      captureNotStarted = true;
+      captureNotStarted = false;
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
       var dpr = ui.window.devicePixelRatio;

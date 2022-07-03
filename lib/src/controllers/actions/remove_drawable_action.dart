@@ -12,14 +12,18 @@ class RemoveDrawableAction extends ControllerAction<bool, bool> {
   /// The drawable to be removed.
   final Drawable drawable;
 
+  /// If the drawable is a paint level drawable.
+  final bool isPaintLevel;
+
   /// The index of the removed drawable.
   ///
   /// This value is initially `null`, and is updated once the action is performed.
   /// It is used by [unperform$] to re-insert the [drawable] at the index it was removed from.
   int? _removedIndex;
 
+
   /// Creates a [RemoveDrawableAction] with the [drawable] to be removed.
-  RemoveDrawableAction(this.drawable);
+  RemoveDrawableAction(this.drawable, this.isPaintLevel);
 
   /// Performs the action.
   ///
@@ -34,16 +38,22 @@ class RemoveDrawableAction extends ControllerAction<bool, bool> {
   @override
   bool perform$(PainterController controller) {
     final value = controller.value;
-    final currentDrawables = List<Drawable>.from(value.drawables);
+    final currentDrawables = List<Drawable>.from(isPaintLevel ? value.paintLevelDrawables : value.topLevelDrawables);
     final index = currentDrawables.indexOf(drawable);
     if (index < 0) return false;
     final selectedObject = controller.value.selectedObjectDrawable;
     final isSelectedObject = currentDrawables[index] == selectedObject;
     currentDrawables.removeAt(index);
     _removedIndex = index;
-    controller.value = value.copyWith(
-      drawables: currentDrawables,
-    );
+    if (isPaintLevel) {
+      controller.value = value.copyWith(
+        paintLevelDrawables: currentDrawables,
+      );
+    } else {
+      controller.value = value.copyWith(
+        topLevelDrawables: currentDrawables,
+      );
+    }
     if (isSelectedObject) controller.deselectObjectDrawable(isRemoved: true);
     return true;
   }
@@ -60,9 +70,13 @@ class RemoveDrawableAction extends ControllerAction<bool, bool> {
     final removedIndex = _removedIndex;
     if (removedIndex == null) return false;
     final value = controller.value;
-    final currentDrawables = List<Drawable>.from(value.drawables);
+    final currentDrawables = List<Drawable>.from(isPaintLevel ? value.paintLevelDrawables : value.topLevelDrawables);
     currentDrawables.insert(removedIndex, drawable);
-    controller.value = value.copyWith(drawables: currentDrawables);
+    if (isPaintLevel) {
+      controller.value = value.copyWith(paintLevelDrawables: currentDrawables);
+    } else {
+      controller.value = value.copyWith(topLevelDrawables: currentDrawables);
+    }
     _removedIndex = null;
     return true;
   }
@@ -75,12 +89,21 @@ class RemoveDrawableAction extends ControllerAction<bool, bool> {
   @protected
   @override
   ControllerAction? merge$(ControllerAction previousAction) {
-    if (previousAction is AddDrawablesAction &&
-        previousAction.drawables.length == 1 &&
-        previousAction.drawables.first == drawable) return null;
-    if (previousAction is InsertDrawablesAction &&
-        previousAction.drawables.length == 1 &&
-        previousAction.drawables.first == drawable) return null;
+    if (isPaintLevel) {
+      if (previousAction is AddDrawablesAction &&
+          previousAction.paintLevelDrawables.length == 1 &&
+          previousAction.paintLevelDrawables.first == drawable) return null;
+      if (previousAction is InsertDrawablesAction &&
+          previousAction.paintLevelDrawables.length == 1 &&
+          previousAction.paintLevelDrawables.first == drawable) return null;
+    } else {
+      if (previousAction is AddDrawablesAction &&
+          previousAction.topLevelDrawables.length == 1 &&
+          previousAction.topLevelDrawables.first == drawable) return null;
+      if (previousAction is InsertDrawablesAction &&
+          previousAction.topLevelDrawables.length == 1 &&
+          previousAction.topLevelDrawables.first == drawable) return null;
+    }
     return super.merge$(previousAction);
   }
 }

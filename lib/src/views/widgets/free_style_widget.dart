@@ -76,7 +76,7 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
   ShapeSettings get shapeSettings => PainterController.of(context).value.settings.shape;
 
   /// Callback when the user holds their pointer(s) down onto the widget.
-  void _handleHorizontalDragDown(Offset globalPosition) {
+  void _handleHorizontalDragDown(Offset globalPosition, {bool newDrag = true}) {
     // If the user is already drawing, don't create a new drawing
     if (this.drawable != null) return;
 
@@ -87,13 +87,13 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
         path: [_globalToLocal(globalPosition)],
         strokeWidth: settings.strokeWidth,
       );
-      PainterController.of(context).groupDrawables();
+      PainterController.of(context).groupDrawables(newAction: newDrag);
       // Add the drawable to the controller's drawables
-      PainterController.of(context).addDrawables([drawable], newAction: false);
+      PainterController.of(context).addDrawables(paintLevelDrawables: [drawable], topLevelDrawables: [], newAction: false,);
     } else if (painterMode == PainterMode.paintBrush) {
       drawable = paintBrushStyle.getDrawable([_globalToLocal(globalPosition)], settings.strokeWidth, settings.color);
       // Add the drawable to the controller's drawables
-      PainterController.of(context).addDrawables([drawable]);
+      PainterController.of(context).addDrawables(paintLevelDrawables: [drawable], topLevelDrawables: [], newAction: newDrag);
     } else {
       return;
     }
@@ -113,14 +113,29 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
       path: List<Offset>.from(drawable.path)..add(_globalToLocal(globalPosition)),
     );
     // Replace the current drawable with the copy with the added point
-    PainterController.of(context).replaceDrawable(drawable, newDrawable, newAction: false);
-    // Update the current drawable to be the new copy
-    this.drawable = newDrawable;
+    PainterController.of(context).replaceDrawable(drawable, newDrawable, true, newAction: false);
+
+    if (newDrawable.path.length > 100) {
+      // If drawable is too big, break apart
+      this.drawable = null;
+      //Todo, should the group logic be somewhere else?
+      if (PainterController.of(context).value.paintLevelDrawables.length > 10) {
+        PainterController.of(context).groupDrawables(newAction: false);
+      }
+      _handleHorizontalDragDown(globalPosition, newDrag: false);
+    } else {
+      // Update the current drawable to be the new copy
+      this.drawable = newDrawable;
+    }
   }
 
   /// Callback when the user removes all pointers from the widget.
   void _handleHorizontalDragUp() {
     if (drawable == null) return;
+    //Todo, should the group logic be somewhere else?
+    if (PainterController.of(context).value.paintLevelDrawables.length > 10) {
+      PainterController.of(context).groupDrawables(newAction: false);
+    }
     DrawableCreatedNotification(drawable).dispatch(context);
 
     /// Reset the current drawable for the user to draw a new one next time
@@ -132,7 +147,7 @@ class _FreeStyleWidgetState extends State<_FreeStyleWidget> {
     if (drawable == null) return;
     int length = drawable.path.length;
     if (length < 100) {
-      PainterController.of(context).removeDrawable(drawable, newAction: false);
+      PainterController.of(context).removeDrawable(drawable, true, newAction: false);
     }
     this.drawable = null;
   }

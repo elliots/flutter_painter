@@ -16,7 +16,7 @@ class MergeDrawablesAction extends ControllerAction<void, void> {
 
   /// Performs the action.
   ///
-  /// Removes all drawables from [controller.value] and inserts a new [GroupedDrawable]
+  /// Removes all drawables from [controller.value.paintLevelDrawables] and inserts a new [GroupedDrawable]
   /// containing all the removed drawables.
   ///
   /// Also sets the selected object drawable to `null` since the selected object drawable would
@@ -26,11 +26,10 @@ class MergeDrawablesAction extends ControllerAction<void, void> {
   void perform$(PainterController controller) {
     final value = controller.value;
 
-    final currentDrawables = List<Drawable>.from(value.drawables);
-    final groupedDrawable = GroupedDrawable(
-        drawables: currentDrawables);
+    final currentDrawables = List<Drawable>.from(value.paintLevelDrawables);
+    final groupedDrawable = GroupedDrawable(drawables: currentDrawables);
     controller.value = value.copyWith(
-      drawables: [groupedDrawable],
+      paintLevelDrawables: [groupedDrawable],
     );
     controller.deselectObjectDrawable(isRemoved: true);
   }
@@ -43,12 +42,12 @@ class MergeDrawablesAction extends ControllerAction<void, void> {
   @override
   void unperform$(PainterController controller) {
     final value = controller.value;
-    final currentDrawables = List<Drawable>.from(value.drawables);
+    final currentDrawables = List<Drawable>.from(value.paintLevelDrawables);
     final last = currentDrawables.last;
     if (last is! GroupedDrawable) return;
     final drawables = last.drawables;
     currentDrawables.removeLast();
     currentDrawables.addAll(drawables);
-    controller.value = value.copyWith(drawables: currentDrawables);
+    controller.value = value.copyWith(paintLevelDrawables: currentDrawables);
   }
 }
