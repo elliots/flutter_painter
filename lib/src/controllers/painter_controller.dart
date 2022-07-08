@@ -308,7 +308,7 @@ class PainterController extends ValueNotifier<PainterControllerValue> {
   ///   });
   /// }
   /// ```
-  void addImage(ui.Image image, {Size? size, bool? fillCanvas}) {
+  void addImage(ui.Image image, {Size? size, bool? fillCanvas, bool paintLevel = false}) {
     // Calculate the center of the painter
     final renderBox = painterKey.currentContext?.findRenderObject() as RenderBox?;
     final center = renderBox == null
@@ -328,7 +328,12 @@ class PainterController extends ValueNotifier<PainterControllerValue> {
       drawable = ImageDrawable.fittedToSize(image: image, position: center, size: size);
     }
 
-    addDrawables(paintLevelDrawables: [], topLevelDrawables: [drawable]);
+    if (paintLevel) {
+      clearDrawables(newAction: true);
+      addDrawables(paintLevelDrawables: [drawable], topLevelDrawables: [], newAction: false);
+    } else {
+      addDrawables(paintLevelDrawables: [], topLevelDrawables: [drawable]);
+    }
   }
 
   /// Renders the background and all other drawables to a [ui.Image] object.
