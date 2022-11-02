@@ -24,6 +24,7 @@ class ImageDrawable extends ObjectDrawable {
     bool hidden = false,
     required this.image,
     this.flipped = false,
+    bool rotatable = false,
   }) : super(
             position: position,
             rotationAngle: rotationAngle,
@@ -31,7 +32,8 @@ class ImageDrawable extends ObjectDrawable {
             assists: assists,
             assistPaints: assistPaints,
             hidden: hidden,
-            locked: locked);
+            locked: locked,
+            rotatable: rotatable);
 
   /// Creates an [ImageDrawable] with the given [image], and calculates the scale based on the given [size].
   /// The scale will be calculated such that the size of the drawable fits into the provided size.
@@ -70,7 +72,8 @@ class ImageDrawable extends ObjectDrawable {
       double? scale,
       Image? image,
       bool? flipped,
-      bool? locked}) {
+      bool? locked,
+      bool? rotatable}) {
     return ImageDrawable(
       hidden: hidden ?? this.hidden,
       assists: assists ?? this.assists,
@@ -80,6 +83,7 @@ class ImageDrawable extends ObjectDrawable {
       image: image ?? this.image,
       flipped: flipped ?? this.flipped,
       locked: locked ?? this.locked,
+      rotatable: rotatable ?? this.rotatable,
     );
   }
 

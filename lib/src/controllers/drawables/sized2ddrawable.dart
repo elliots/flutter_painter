@@ -21,6 +21,7 @@ abstract class Sized2DDrawable extends ObjectDrawable {
         const <ObjectDrawableAssist, Paint>{},
     bool locked = false,
     bool hidden = false,
+    bool rotatable = false,
   }) : super(
             position: position,
             rotationAngle: rotationAngle,
@@ -28,7 +29,8 @@ abstract class Sized2DDrawable extends ObjectDrawable {
             assists: assists,
             assistPaints: assistPaints,
             locked: locked,
-            hidden: hidden);
+            hidden: hidden,
+            rotatable: rotatable);
 
   /// Getter for padding of drawable.
   ///

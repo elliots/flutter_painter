@@ -25,6 +25,7 @@ class LineDrawable extends Sized1DDrawable implements ShapeDrawable {
         const <ObjectDrawableAssist, Paint>{},
     bool locked = false,
     bool hidden = false,
+    bool rotatable = true,
   })  : paint = paint ?? ShapeDrawable.defaultPaint,
         super(
             length: length,
@@ -34,7 +35,8 @@ class LineDrawable extends Sized1DDrawable implements ShapeDrawable {
             assists: assists,
             assistPaints: assistPaints,
             locked: locked,
-            hidden: hidden);
+            hidden: hidden,
+            rotatable: rotatable);
 
   /// Getter for padding of drawable.
   ///
