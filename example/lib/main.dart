@@ -1,13 +1,10 @@
-import 'dart:typed_data';
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:example/brush_previews.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_painter/flutter_painter.dart';
-
-import 'dart:ui' as ui;
-
+import 'package:image/image.dart' as img;
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 void main() => runApp(const MyApp());
@@ -103,7 +100,9 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
   /// to use it as a background
   void initBackground() async {
     // Extension getter (.image) to get [ui.Image] from [ImageProvider]
-    final image = await const NetworkImage('https://picsum.photos/1920/1080/').image;
+    final image = await const NetworkImage(
+            'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8Y2l0eXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=1000&q=10')
+        .image;
 
     setState(() {
       backgroundImage = image;
@@ -133,7 +132,10 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
                       icon: const Icon(
                         PhosphorIcons.paintBrush,
                       ),
-                      onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => BrushPreviews(painterController: controller,))),
+                      onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => BrushPreviews(
+                                painterController: controller,
+                              ))),
                     ),
                     // Delete the selected drawable
                     IconButton(
@@ -565,8 +567,20 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
 
     // Render the image
     // Returns a [ui.Image] object, convert to to byte data and then to Uint8List
-    final imageFuture =
-        controller.renderImage(backgroundImageSize).then<Uint8List?>((ui.Image image) => image.pngBytes);
+    final s = Stopwatch()..start();
+    final imageFuture = controller.renderImage(backgroundImageSize).then<Uint8List?>((ui.Image image) async {
+      print("Render image complete in ${s.elapsedMilliseconds}ms");
+      final bytes = (await image.toByteData(format: ui.ImageByteFormat.rawRgba))?.buffer.asUint8List();
+      final image2 = img.Image.fromBytes(image.width, image.height, bytes!);
+      //final bytesPng = img.encodePng(image2) as Uint8List;
+      final image3 = img.copyResize(image2, width: 50, interpolation: img.Interpolation.nearest);
+      final bytesPng = img.encodeJpg(image3, quality: 10) as Uint8List; // this is much faster than toByteData
+      print("Render byte data complete in ${s.elapsedMilliseconds}ms");
+      s.stop();
+      print("Size: ${bytesPng.lengthInBytes / 1000}kb");
+
+      return bytesPng;
+    });
 
     // From here, you can write the PNG image data a file or do whatever you want with it
     // For example:
