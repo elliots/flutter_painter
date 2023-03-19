@@ -7,8 +7,6 @@ import 'package:flutter_painter/src/views/widgets/edit_text_widget/triangle_slid
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../flutter_painter.dart';
-import '../../../controllers/notifications/drawable_created_notification.dart';
-import '../../../controllers/notifications/drawable_deleted_notification.dart';
 
 /// A dialog-like widget to edit text drawables in.
 class EditTextWidgetUI extends StatefulWidget {
@@ -162,6 +160,7 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
                 child: RotatedBox(
                   quarterTurns: -1,
                   child: Slider(
+                    focusNode: widget.textFieldNode,
                     min: 8,
                     max: 96,
                     value: textStyle.fontSize ?? 14,
@@ -246,6 +245,7 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
                   trackShape: GradientRectSliderTrackShape(gradient: colorSliderGradient, darkenInactive: false),
                 ),
                 child: Slider(
+                    focusNode: widget.textFieldNode,
                     min: 0,
                     max: 359.99,
                     value: textColorSliderValue,
