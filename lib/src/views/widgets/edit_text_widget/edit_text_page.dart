@@ -5,9 +5,11 @@ import '../../../../flutter_painter.dart';
 import '../../../controllers/notifications/drawable_created_notification.dart';
 import '../../../controllers/notifications/drawable_deleted_notification.dart';
 
-/// A dialog-like widget to edit text drawables in.
-class EditTextWidget extends StatefulWidget {
+/// A dialog-like page with a translucent background to edit text drawables in.
+class EditTextPage extends StatefulWidget {
   /// The controller for the current [FlutterPainter].
+  /// We need to pass this value because the InheritedWidget may not reach
+  /// the new page
   final PainterController controller;
 
   /// The text drawable currently being edited.
@@ -18,7 +20,7 @@ class EditTextWidget extends StatefulWidget {
   /// the previous action.
   final bool isNew;
 
-  const EditTextWidget({
+  const EditTextPage({
     Key? key,
     required this.controller,
     required this.drawable,
@@ -26,10 +28,10 @@ class EditTextWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  EditTextWidgetState createState() => EditTextWidgetState();
+  EditTextPageState createState() => EditTextPageState();
 }
 
-class EditTextWidgetState extends State<EditTextWidget> with WidgetsBindingObserver {
+class EditTextPageState extends State<EditTextPage> with WidgetsBindingObserver {
   /// Text editing controller for the [TextField].
   TextEditingController textEditingController = TextEditingController();
 
@@ -69,12 +71,15 @@ class EditTextWidgetState extends State<EditTextWidget> with WidgetsBindingObser
     //
     // This is used to check the bottom view insets (the keyboard size on mobile)
     WidgetsBinding.instance.addObserver(this);
+
+    // Observe the PainterController to refresh the subtree on changes
+    widget.controller.addListener(refreshSubtree);
   }
 
   @override
   void dispose() {
     // Remove this object from being an observer
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
 
     // Stop listening to the focus node
     textFieldNode.removeListener(focusListener);
@@ -84,6 +89,9 @@ class EditTextWidgetState extends State<EditTextWidget> with WidgetsBindingObser
 
     // Dispose of the text editing controller
     textEditingController.dispose();
+
+    // Remove the listener
+    widget.controller.removeListener(refreshSubtree);
     super.dispose();
   }
 
@@ -176,4 +184,9 @@ class EditTextWidgetState extends State<EditTextWidget> with WidgetsBindingObser
   Widget? buildEmptyCounter(BuildContext context,
           {required int currentLength, int? maxLength, required bool isFocused}) =>
       null;
+
+  /// Refresh the widget subtree if mounted
+  void refreshSubtree() {
+    if (mounted) setState(() {});
+  }
 }

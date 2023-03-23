@@ -120,20 +120,19 @@ class _TextWidgetState extends State<_TextWidget> {
 
   /// Opens an editor to edit the text of [drawable].
   Future<void> openTextEditor(TextDrawable drawable, [bool isNew = false]) async {
-    await Navigator.of(context, rootNavigator: true).push(
-        PageRouteBuilder(
-            transitionDuration: const Duration(milliseconds: 300),
-            reverseTransitionDuration: const Duration(milliseconds: 300),
-            opaque: false,
-            fullscreenDialog: true,
-            pageBuilder: (context, animation, secondaryAnimation) => EditTextWidget(
-                  controller: PainterController.of(this.context),
-                  drawable: drawable,
-                  isNew: isNew,
-                ),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(
-                  opacity: animation,
-                  child: child,
-                )));
+    await Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 300),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        opaque: false,
+        fullscreenDialog: true,
+        pageBuilder: (context, animation, secondaryAnimation) => EditTextPage(
+              controller: PainterController.of(this.context),
+              drawable: drawable,
+              isNew: isNew,
+            ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(
+              opacity: animation,
+              child: child,
+            )));
   }
 }

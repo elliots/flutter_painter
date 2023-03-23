@@ -1,45 +1,36 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:typed_data';
+import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:floodfill_image/floodfill_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter_painter/src/controllers/drawables/path/dot_brushes/jagged_brush_drawable.dart';
 import 'package:flutter_painter/src/controllers/drawables/path/dot_brushes/pencil_drawable.dart';
-import '../../controllers/drawables/path/ink_freehand_drawable.dart';
-import '../../controllers/events/selected_object_drawable_removed_event.dart';
-import '../../controllers/helpers/renderer_check/renderer_check.dart';
+
 import '../../controllers/drawables/drawable.dart';
-import '../../controllers/notifications/notifications.dart';
-import '../../controllers/drawables/sized1ddrawable.dart';
-import '../../controllers/drawables/shape/shape_drawable.dart';
-import '../../controllers/drawables/sized2ddrawable.dart';
 import '../../controllers/drawables/object_drawable.dart';
-import '../../controllers/events/events.dart';
-import '../../controllers/drawables/text_drawable.dart';
 import '../../controllers/drawables/path/path_drawables.dart';
-import '../../controllers/settings/settings.dart';
-import '../painters/painter.dart';
+import '../../controllers/drawables/shape/shape_drawable.dart';
+import '../../controllers/drawables/sized1ddrawable.dart';
+import '../../controllers/drawables/sized2ddrawable.dart';
+import '../../controllers/drawables/text_drawable.dart';
+import '../../controllers/events/events.dart';
+import '../../controllers/events/selected_object_drawable_removed_event.dart';
+import '../../controllers/notifications/notifications.dart';
 import '../../controllers/painter_controller.dart';
-import '../../controllers/helpers/border_box_shadow.dart';
+import '../../controllers/settings/settings.dart';
 import '../../extensions/painter_controller_helper_extension.dart';
-import 'edit_text_widget/edit_text_widget.dart';
+import '../painters/painter.dart';
+import 'edit_text_widget/edit_text_page.dart';
 import 'painter_controller_widget.dart';
-import 'dart:math' as math;
-import 'dart:ui' as ui;
-
-part 'free_style_widget.dart';
-
-part 'text_widget.dart';
-
-part 'object_widget.dart';
 
 part 'bucket_fill_widget.dart';
-
+part 'free_style_widget.dart';
+part 'object_widget.dart';
 part 'shape_widget.dart';
+part 'text_widget.dart';
 
 typedef DrawableCreatedCallback = Function(Drawable drawable);
 
@@ -174,14 +165,17 @@ class _FlutterPainterWidget extends StatelessWidget {
                   child: _ObjectWidget(
                     trashKey: trashKey,
                     // controller: controller,
-                    interactionEnabled: !(controller.settings.painterMode == PainterMode.zoom || controller.painterMode.isAFreestyleMode),
+                    interactionEnabled: !(controller.settings.painterMode == PainterMode.zoom ||
+                        controller.painterMode.isAFreestyleMode),
                     // does not change properly
                     child: Builder(builder: (context) {
-                      print("Building painter with drawables of count: ${(controller.value.paintLevelDrawables.length + controller.value.topLevelDrawables.length)}");
+                      print(
+                          "Building painter with drawables of count: ${(controller.value.paintLevelDrawables.length + controller.value.topLevelDrawables.length)}");
                       return CustomPaint(
                         willChange: true,
                         painter: Painter(
-                          drawables: (controller.value.paintLevelDrawables.isNotEmpty || controller.value.topLevelDrawables.isNotEmpty)
+                          drawables: (controller.value.paintLevelDrawables.isNotEmpty ||
+                                  controller.value.topLevelDrawables.isNotEmpty)
                               ? (controller.value.paintLevelDrawables + controller.value.topLevelDrawables)
                               : [
                                   PencilDrawable(
@@ -206,7 +200,8 @@ class _FlutterPainterWidget extends StatelessWidget {
                       minScale: controller.settings.scale.minScale,
                       maxScale: controller.settings.scale.maxScale,
                       panEnabled: controller.painterMode == PainterMode.zoom,
-                      scaleEnabled: controller.painterMode == PainterMode.zoom || controller.painterMode.isAFreestyleMode,
+                      scaleEnabled:
+                          controller.painterMode == PainterMode.zoom || controller.painterMode.isAFreestyleMode,
                       child: controller.painterMode == PainterMode.zoom
                           ? IgnorePointer(
                               child: child,

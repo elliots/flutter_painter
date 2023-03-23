@@ -569,13 +569,20 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
     // Returns a [ui.Image] object, convert to to byte data and then to Uint8List
     final s = Stopwatch()..start();
     final imageFuture = controller.renderImage(backgroundImageSize).then<Uint8List?>((ui.Image image) async {
-      print("Render image complete in ${s.elapsedMilliseconds}ms");
+      print("renderImage took: ${s.elapsedMilliseconds}ms");
+      s.reset();
       final bytes = (await image.toByteData(format: ui.ImageByteFormat.rawRgba))?.buffer.asUint8List();
       final image2 = img.Image.fromBytes(image.width, image.height, bytes!);
       //final bytesPng = img.encodePng(image2) as Uint8List;
-      final image3 = img.copyResize(image2, width: 50, interpolation: img.Interpolation.nearest);
+      final image3 = img.copyResize(image2, width: 1000, interpolation: img.Interpolation.nearest);
+      print("copyResize took: ${s.elapsedMilliseconds}ms");
+      s.reset();
+      // nearest → Select the closest pixel. Fastest, lowest quality.
+      // linear → Linearly blend between the neighboring pixels.
+      // cubic → Cubic blend between the neighboring pixels. Slowest, highest Quality.
+      // average → Average the colors of the neighboring pixels.
       final bytesPng = img.encodeJpg(image3, quality: 10) as Uint8List; // this is much faster than toByteData
-      print("Render byte data complete in ${s.elapsedMilliseconds}ms");
+      print("encodeJpg took: ${s.elapsedMilliseconds}ms");
       s.stop();
       print("Size: ${bytesPng.lengthInBytes / 1000}kb");
 
