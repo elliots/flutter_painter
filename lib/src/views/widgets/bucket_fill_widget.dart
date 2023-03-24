@@ -16,7 +16,7 @@ class _BucketFillWidgetState extends State<_BucketFillWidget> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((timestamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timestamp) {
       PainterController.of(context)
           .renderImage(PainterController.of(context).value.background!.getSize())
           .then((value) async {

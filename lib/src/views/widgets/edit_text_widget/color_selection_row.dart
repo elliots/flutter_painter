@@ -1,5 +1,9 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_painter/flutter_painter.dart';
+import 'package:flutter_painter/src/views/widgets/edit_text_widget/bouncing_click_listener.dart';
 
+// Todo improve
 List<Color> colorOptions = const [
   Color(0xFFFFFFFF),
   Color(0xFF000000),
@@ -19,13 +23,29 @@ List<Color> colorOptions = const [
   Color(0xFF333333),
 ];
 
+List<Color> contrastColors = colorOptions.map((e) => e.getContrastColor()).toList();
+
+extension ContrastColor on Color {
+  Color getContrastColor() {
+    final double relativeLuminance = this.computeLuminance();
+
+    const double kThreshold = 0.15;
+    if ((relativeLuminance + 0.05) * (relativeLuminance + 0.05) > kThreshold) {
+      // Brightness.light;
+      return Colors.black;
+    }
+    // Brightness.dark;
+    return Colors.white;
+  }
+}
+
 class ColorSelectionRow extends StatelessWidget {
   const ColorSelectionRow({
     Key? key,
-    required this.onColorChange,
+    required this.controller,
   }) : super(key: key);
 
-  final void Function(Color) onColorChange;
+  final PainterController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -36,24 +56,27 @@ class ColorSelectionRow extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(12, 0, 0, 0),
         child: Row(
           children: colorOptions
-              .map((color) => Padding(
+              .mapIndexed((i, color) => Padding(
                     padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),
-                    child: Material(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      child: Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child: Material(
+                    child: BouncingClickListener(
+                      onTap: () => controller.textStyle = controller.textStyle.copyWith(
+                        color: color,
+                        contrastColor: contrastColors[i],
+                      ),
+                      child: Material(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        child: Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Material(
                             color: color,
                             borderRadius: BorderRadius.circular(24),
-                            child: InkWell(
-                              onTap: () => onColorChange(color),
-                              borderRadius: BorderRadius.circular(24),
-                              child: SizedBox(
-                                height: 24,
-                                width: 24,
-                              ),
-                            )),
+                            child: const SizedBox(
+                              height: 24,
+                              width: 24,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ))

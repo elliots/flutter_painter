@@ -77,7 +77,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
         settings: PainterSettings(
             text: TextSettings(
               focusNode: textFocusNode,
-              textStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18),
+              style: defaultTextDrawableSettings,
             ),
             freeStyle: const FreeStyleSettings(
               color: red,
@@ -539,7 +539,7 @@ class _FlutterPainterExampleState extends State<FlutterPainterExample> {
     // Set state is just to update the current UI, the [FlutterPainter] UI updates without it
     setState(() {
       controller.textSettings =
-          controller.textSettings.copyWith(textStyle: controller.textSettings.textStyle.copyWith(fontSize: size));
+          controller.textSettings.copyWith(style: controller.textSettings.style.copyWith(fontSize: size));
     });
   }
 

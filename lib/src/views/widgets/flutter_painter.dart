@@ -30,6 +30,7 @@ part 'bucket_fill_widget.dart';
 part 'free_style_widget.dart';
 part 'object_widget.dart';
 part 'shape_widget.dart';
+part 'text_drawable_overlay_widget.dart';
 part 'text_widget.dart';
 
 typedef DrawableCreatedCallback = Function(Drawable drawable);
@@ -156,40 +157,45 @@ class _FlutterPainterWidget extends StatelessWidget {
             opaque: false,
             pageBuilder: (context, animation, secondaryAnimation) {
               // final controller = PainterController.of(context);
-              Widget child = _FreeStyleWidget(
-                  // controller: controller,
-                  child: _TextWidget(
-                // controller: controller,
-                child: _ShapeWidget(
-                  // controller: controller,
-                  child: _ObjectWidget(
-                    trashKey: trashKey,
+              Widget child = RepaintBoundary(
+                key: controller.screenshotKey,
+                child: _FreeStyleWidget(
                     // controller: controller,
-                    interactionEnabled: !(controller.settings.painterMode == PainterMode.zoom ||
-                        controller.painterMode.isAFreestyleMode),
-                    // does not change properly
-                    child: Builder(builder: (context) {
-                      print(
-                          "Building painter with drawables of count: ${(controller.value.paintLevelDrawables.length + controller.value.topLevelDrawables.length)}");
-                      return CustomPaint(
-                        willChange: true,
-                        painter: Painter(
-                          drawables: (controller.value.paintLevelDrawables.isNotEmpty ||
-                                  controller.value.topLevelDrawables.isNotEmpty)
-                              ? (controller.value.paintLevelDrawables + controller.value.topLevelDrawables)
-                              : [
-                                  PencilDrawable(
-                                    path: [const Offset(0, 0), const Offset(0, 0)],
-                                    strokeWidth: 1,
-                                  ),
-                                ], // pencil drawable fixes a bug where the last drawable wouldn't disappear
-                          background: controller.value.background,
-                        ),
-                      );
-                    }),
+                    child: _TextWidget(
+                  // controller: controller,
+                  child: _ShapeWidget(
+                    // controller: controller,
+                    child: _ObjectWidget(
+                      trashKey: trashKey,
+                      // controller: controller,
+                      interactionEnabled: !(controller.settings.painterMode == PainterMode.zoom ||
+                          controller.painterMode.isAFreestyleMode),
+                      // does not change properly
+                      child: _TextDrawableOverlayWidget(
+                        child: Builder(builder: (context) {
+                          print(
+                              "Building painter with drawables of count: ${(controller.value.paintLevelDrawables.length + controller.value.topLevelDrawables.length)}");
+                          return CustomPaint(
+                            willChange: true,
+                            painter: Painter(
+                              drawables: (controller.value.paintLevelDrawables.isNotEmpty ||
+                                      controller.value.topLevelDrawables.isNotEmpty)
+                                  ? (controller.value.paintLevelDrawables + controller.value.topLevelDrawables)
+                                  : [
+                                      PencilDrawable(
+                                        path: [const Offset(0, 0), const Offset(0, 0)],
+                                        strokeWidth: 1,
+                                      ),
+                                    ], // pencil drawable fixes a bug where the last drawable wouldn't disappear
+                              background: controller.value.background,
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
                   ),
-                ),
-              ));
+                )),
+              );
               return NotificationListener<FlutterPainterNotification>(
                 onNotification: onNotification,
                 child: Stack(

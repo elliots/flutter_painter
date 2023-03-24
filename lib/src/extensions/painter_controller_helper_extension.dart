@@ -1,12 +1,9 @@
-import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+
+import '../controllers/drawables/drawables.dart';
 import '../controllers/factories/shape_factory.dart';
-
-import '../controllers/settings/shape_settings.dart';
-
 import '../controllers/painter_controller.dart';
 import '../controllers/settings/settings.dart';
-import '../controllers/drawables/drawables.dart';
 
 /// Adds extra getters and setters in [PainterController] to make it easier to use.
 ///
@@ -123,7 +120,7 @@ extension PainterControllerHelper on PainterController {
       value.settings.object.showScaleRotationControlsResolver;
 
   /// The text style to be used for text drawables from `value.settings.text` directly.
-  TextStyle get textStyle => value.settings.text.textStyle;
+  TextDrawableSettings get textStyle => value.settings.text.style;
 
   /// The focus node used to edit text drawables text from `value.settings.text` directly.
   FocusNode? get textFocusNode => value.settings.text.focusNode;
@@ -196,8 +193,8 @@ extension PainterControllerHelper on PainterController {
   /// that they need to update (it calls [notifyListeners]). For this reason,
   /// this value should only be set between frames, e.g. in response to user
   /// actions, not during the build, layout, or paint phases.
-  set textStyle(TextStyle textStyle) => value =
-      value.copyWith(settings: value.settings.copyWith(text: value.settings.text.copyWith(textStyle: textStyle)));
+  set textStyle(TextDrawableSettings style) =>
+      value = value.copyWith(settings: value.settings.copyWith(text: value.settings.text.copyWith(style: style)));
 
   /// The focus node used to edit text drawables text from `value.settings.text` directly.
   ///
@@ -214,8 +211,7 @@ extension PainterControllerHelper on PainterController {
   /// that they need to update (it calls [notifyListeners]). For this reason,
   /// this value should only be set between frames, e.g. in response to user
   /// actions, not during the build, layout, or paint phases.
-  set painterMode(PainterMode mode) =>
-      value = value.copyWith(settings: value.settings.copyWith(painterMode: mode));
+  set painterMode(PainterMode mode) => value = value.copyWith(settings: value.settings.copyWith(painterMode: mode));
 
   /// The stroke width used for free-style drawing from `value.settings.freeStyle` directly.
   ///

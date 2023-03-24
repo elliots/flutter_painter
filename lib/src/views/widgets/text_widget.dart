@@ -99,7 +99,7 @@ class _TextWidgetState extends State<_TextWidget> {
       key: UniqueKey(),
       text: '',
       position: center,
-      style: settings.textStyle,
+      style: settings.style,
       hidden: true,
     );
 
@@ -121,6 +121,7 @@ class _TextWidgetState extends State<_TextWidget> {
   /// Opens an editor to edit the text of [drawable].
   Future<void> openTextEditor(TextDrawable drawable, [bool isNew = false]) async {
     final controller = PainterController.of(context);
+    controller.textStyle = drawable.style;
     await Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 300),
         reverseTransitionDuration: const Duration(milliseconds: 300),

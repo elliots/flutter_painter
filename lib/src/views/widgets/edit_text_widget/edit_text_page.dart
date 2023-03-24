@@ -157,7 +157,7 @@ class EditTextPageState extends State<EditTextPage> with WidgetsBindingObserver 
     } else {
       final drawable = widget.drawable.copyWith(
         text: textEditingController.text.trim(),
-        style: settings.textStyle,
+        style: settings.style,
         hidden: false,
       );
       updateDrawable(widget.drawable, drawable);

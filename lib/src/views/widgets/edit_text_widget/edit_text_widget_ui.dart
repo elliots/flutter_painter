@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_painter/src/views/widgets/edit_text_widget/bouncing_click_listener.dart';
+import 'package:flutter_painter/src/views/widgets/edit_text_widget/styled_text_input_field.dart';
 
 import '../../../../flutter_painter.dart';
 import 'color_selection_row.dart';
@@ -49,7 +51,7 @@ class EditTextWidgetUI extends StatefulWidget {
 }
 
 class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingObserver {
-  TextStyle get textStyle => widget.controller.textStyle;
+  TextDrawableSettings get textStyle => widget.controller.textStyle;
 
   @override
   void initState() {
@@ -64,88 +66,50 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
         child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: [
-                Colors.black.withOpacity(0.25),
-                Colors.black.withOpacity(0.25),
-              ],
-            ),
-          ),
+          color: Colors.black.withOpacity(0.25),
           child: Scaffold(
             backgroundColor: Colors.transparent,
             body: SafeArea(
               child: Column(
                 children: [
-                  buildTop(),
                   Expanded(
-                    child: ShaderMask(
-                      shaderCallback: (rect) {
-                        return LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withOpacity(0), // Fade top edge
-                            Colors.black.withOpacity(1),
-                            Colors.black.withOpacity(1),
-                            Colors.black.withOpacity(1),
-                            Colors.black.withOpacity(1), // Middle weight 8
-                            Colors.black.withOpacity(1),
-                            Colors.black.withOpacity(1),
-                            Colors.black.withOpacity(1),
-                            Colors.black.withOpacity(1),
-                            Colors.black.withOpacity(0), // Fade bottom edge
-                          ],
-                        ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-                      },
-                      blendMode: BlendMode.dstIn,
+                    child: ClipRect(
+                      clipBehavior: Clip.hardEdge,
                       child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                          child: TextField(
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.zero,
-                              isDense: true,
+                        child: GestureDetector(
+                          onTap: () {}, // Don't un-focus when tapping the text area
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.symmetric(vertical: 32),
+                            physics: const BouncingScrollPhysics(),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                              child: StyledTextInputField(
+                                textEditingController: widget.textEditingController,
+                                focusNode: widget.textFieldNode,
+                                controller: widget.controller,
+                              ),
                             ),
-                            cursorColor: Colors.white,
-                            buildCounter: widget.buildEmptyCounter,
-                            maxLength: 1000,
-                            minLines: 1,
-                            maxLines: 10,
-                            controller: widget.textEditingController,
-                            focusNode: widget.textFieldNode,
-                            style: widget.controller.textStyle,
-                            textAlign: TextAlign.center,
-                            textAlignVertical: TextAlignVertical.center,
-                            onEditingComplete: widget.onEditingComplete,
                           ),
                         ),
                       ),
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [Colors.black.withOpacity(0.5), Colors.black.withOpacity(0)])),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 32),
-                      child: Column(
-                        children: [
-                          FontStyleSelectionRow(
-                            controller: widget.controller,
-                            changeStyle: () => updateTextBackgroundColor(true),
-                          ),
-                          const SizedBox(height: 12),
-                          ColorSelectionRow(
-                            onColorChange: (color) => widget.controller.textStyle = textStyle.copyWith(color: color),
-                          ),
-                        ],
-                      ),
+                  SizedBox(height: 8),
+                  buildDoneRow(),
+                  GestureDetector(
+                    onTap: () {}, // Don't un-focus when tapping the bottom area
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 16),
+                        FontStyleSelectionRow(
+                          controller: widget.controller,
+                        ),
+                        const SizedBox(height: 12),
+                        ColorSelectionRow(
+                          controller: widget.controller,
+                        ),
+                        const SizedBox(height: 12),
+                      ],
                     ),
                   ),
                 ],
@@ -157,17 +121,31 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
     );
   }
 
-  Widget buildTop() {
+  Widget buildDoneRow() {
     return Row(
       children: [
         Expanded(
           child: Container(),
         ),
-        TextButton(
-          onPressed: () => widget.textFieldNode.unfocus(),
-          child: const Text(
-            "Done",
-            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+        BouncingClickListener(
+          onTap: () => widget.textFieldNode.unfocus(),
+          child: Container(
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(100),
+              border: Border.all(
+                width: 1.6,
+                color: Colors.white.withOpacity(0.8),
+              ),
+            ),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16, 8.0, 16, 8),
+              child: Text(
+                "Done",
+                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+            ),
           ),
         ),
         const SizedBox(width: 16),
@@ -175,25 +153,10 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
     );
   }
 
-  void updateTextBackgroundColor(bool swap) {
-    if (swap) {
-      if (textStyle.background == null || textStyle.background?.color == Colors.transparent) {
-        widget.controller.textStyle = textStyle.copyWith(background: getTextStyleBackground());
-      } else {
-        widget.controller.textStyle = textStyle.copyWith(background: Paint()..color = Colors.transparent);
-      }
-    } else {
-      if (textStyle.background == null || textStyle.background?.color == Colors.transparent) {
-        return;
-      }
-      widget.controller.textStyle = textStyle.copyWith(background: getTextStyleBackground());
-    }
-  }
-
   Paint? getTextStyleBackground() {
     return Paint()
-      ..color = (textStyle.color!.computeLuminance() > 0.5 ? Colors.black : Colors.white)
-      ..strokeWidth = (textStyle.height ?? 1) * (textStyle.fontSize ?? 20) * 1.45
+      ..color = (textStyle.color.computeLuminance() > 0.5 ? Colors.black : Colors.white)
+      ..strokeWidth = (/*textStyle.height*/ null ?? 1) * (textStyle.fontSize ?? 20) * 1.45
       ..strokeJoin = StrokeJoin.round
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;

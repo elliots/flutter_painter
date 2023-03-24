@@ -224,7 +224,8 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                         print("selected");
                         setState(() {
                           controller?.removeDrawable(entry.value, false, newAction: true);
-                          controller?.addDrawables(paintLevelDrawables: [], topLevelDrawables: [entry.value], newAction: false);
+                          controller?.addDrawables(
+                              paintLevelDrawables: [], topLevelDrawables: [entry.value], newAction: false);
                           controller?.selectObjectDrawable(entry.value);
                           _currentScaleEntry = entry;
                           print("_currentScaleEntry set to entry");
@@ -242,7 +243,8 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                             final drawable = onDrawableScaleEnd(_currentScaleEntry!);
                             if (drawable == null) return;
                             controller?.removeDrawable(drawable, false, newAction: false);
-                            controller?.addDrawables(paintLevelDrawables: [], topLevelDrawables: [drawable], newAction: false);
+                            controller?.addDrawables(
+                                paintLevelDrawables: [], topLevelDrawables: [drawable], newAction: false);
                             _currentScaleEntry = null;
                             print("_currentScaleEntry set to null");
                           }
@@ -261,7 +263,8 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
                             if (newDrawable == null) return;
                             //todo possible text error
                             controller?.removeDrawable(newDrawable, false, newAction: false);
-                            controller?.addDrawables(paintLevelDrawables: [], topLevelDrawables: [newDrawable], newAction: false);
+                            controller?.addDrawables(
+                                paintLevelDrawables: [], topLevelDrawables: [newDrawable], newAction: false);
                             _currentScaleEntry = null;
                             print("_currentScaleEntry set to null");
                             if (!scaleStarted) {
@@ -550,7 +553,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
 
     drawableInitialLocalFocalPoints[index] = Offset(rotateOffset[12], rotateOffset[13]);
 
-    updateDrawable(drawable, drawable, newAction: false);//todo possible text error
+    updateDrawable(drawable, drawable, newAction: false); //todo possible text error
   }
 
   /// Callback when the object drawable finishes movement, scaling and rotation.
@@ -818,7 +821,6 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
   }
 
   void onScaleControlPanStart(int controlIndex, MapEntry<int, ObjectDrawable> entry, DragStartDetails details) {
-
     setState(() {
       controlsAreActive[controlIndex] = true;
     });

@@ -1,25 +1,23 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:typed_data';
+import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_painter/src/controllers/drawables/path/picture_brushes/generic_picture_brush_drawable.dart';
-import 'events/selected_object_drawable_removed_event.dart';
+
+import '../views/painters/painter.dart';
 import '../views/widgets/painter_controller_widget.dart';
 import 'actions/actions.dart';
-import 'drawables/image_drawable.dart';
-import 'events/events.dart';
 import 'drawables/background/background_drawable.dart';
-import 'drawables/object_drawable.dart';
-import 'settings/settings.dart';
-import '../views/painters/painter.dart';
-
 import 'drawables/drawable.dart';
-
-import 'dart:ui' as UI;
+import 'drawables/image_drawable.dart';
+import 'drawables/object_drawable.dart';
+import 'events/events.dart';
+import 'events/selected_object_drawable_removed_event.dart';
+import 'settings/settings.dart';
 
 /// Controller used to control a [FlutterPainter] widget.
 ///
@@ -41,6 +39,8 @@ class PainterController extends ValueNotifier<PainterControllerValue> {
   ///
   /// However, you can use to to grab information about the render object, etc...
   final GlobalKey painterKey;
+
+  final GlobalKey screenshotKey = GlobalKey();
 
   /// This controller will be used by the [InteractiveViewer] in [FlutterPainter] to notify
   /// children widgets of transformation changes.
@@ -341,16 +341,23 @@ class PainterController extends ValueNotifier<PainterControllerValue> {
   /// The size of the output image is controlled by [size].
   /// All drawables will be scaled according to that image size.
   Future<ui.Image> renderImage(Size size) async {
-    final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder);
-    final painter = Painter(
-      drawables: value.paintLevelDrawables + value.topLevelDrawables,
-      scale: painterKey.currentContext?.size ?? size,
-      background: value.background,
-    );
-    print("render image");
-    painter.paint(canvas, size);
-    return await recorder.endRecording().toImage(size.width.floor(), size.height.floor());
+    if (false) {
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      final painter = Painter(
+        drawables: value.paintLevelDrawables + value.topLevelDrawables,
+        scale: painterKey.currentContext?.size ?? size,
+        background: value.background,
+      );
+      print("render image");
+      painter.paint(canvas, size);
+      return await recorder.endRecording().toImage(size.width.floor(), size.height.floor());
+    } else {
+      RenderRepaintBoundary boundary = screenshotKey.currentContext?.findRenderObject() as RenderRepaintBoundary;
+      ui.Image image =
+          await boundary.toImage(pixelRatio: max(size.width / boundary.size.width, size.height / boundary.size.height));
+      return image;
+    }
   }
 
   /// The currently selected object drawable.

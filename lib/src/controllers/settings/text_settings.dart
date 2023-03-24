@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_painter/flutter_painter.dart';
 
 /// Represents settings used to create and draw text.
 @immutable
 class TextSettings {
-  /// The text style to be used.
-  final TextStyle textStyle;
+  /// The text style to be used for new or edited text drawables.
+  final TextDrawableSettings style;
 
   /// Focus node used to edit text.
   /// This focus node will be listened to by the UI to determine user input.
@@ -19,19 +19,16 @@ class TextSettings {
 
   /// Creates a [TextSettings] with the given [textStyle] and [focusNode].
   const TextSettings({
-    this.textStyle = const TextStyle(
-      fontSize: 14,
-      color: Colors.black,
-    ),
+    this.style = defaultTextDrawableSettings,
     this.focusNode,
     this.fontFamilyOptions = const [],
     this.fontFamilyOptionsNames = const [],
   });
 
   /// Creates a copy of this but with the given fields replaced with the new values.
-  TextSettings copyWith({TextStyle? textStyle, FocusNode? focusNode}) {
+  TextSettings copyWith({TextDrawableSettings? style, FocusNode? focusNode}) {
     return TextSettings(
-      textStyle: textStyle ?? this.textStyle,
+      style: style ?? this.style,
       focusNode: focusNode ?? this.focusNode,
       fontFamilyOptions: fontFamilyOptions,
       fontFamilyOptionsNames: fontFamilyOptionsNames,
