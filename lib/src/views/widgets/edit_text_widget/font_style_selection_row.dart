@@ -58,7 +58,9 @@ class FontStyleSelectionRow extends StatelessWidget {
     if (options.isEmpty) {
       options = [
         GoogleFonts.roboto().fontFamily!,
-        GoogleFonts.varelaRound().fontFamily!,
+        GoogleFonts.playfairDisplay().fontFamily!,
+        GoogleFonts.permanentMarker().fontFamily!,
+        GoogleFonts.cookie().fontFamily!,
       ].whereType<String>().toList();
       names = options.map((e) => e.toString()).toList();
     }
@@ -92,14 +94,14 @@ class ChangeStyleButton extends StatelessWidget {
         controller.textStyle = controller.textStyle.copyWith(mode: nextMode);
       },
       child: Container(
-        height: 32,
-        width: 32,
+        height: 28,
+        width: 28,
         decoration:
             BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.white, width: 2)),
-        child: Center(
+        child: const Center(
             child: Text(
           "A",
-          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
         )),
       ),
     );

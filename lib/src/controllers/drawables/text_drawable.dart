@@ -232,10 +232,8 @@ class TextDrawable extends ObjectDrawable {
                       return Text(
                         text,
                         textAlign: style.alignment,
-                        style: TextStyle(
-                          fontSize: style.fontSize,
-                          color: style.color,
-                        ),
+                        style: style.toTextStyle(),
+                        textScaleFactor: scale,
                       );
                     case TextDrawableMode.textWithBorder:
                       return Stack(
@@ -244,6 +242,7 @@ class TextDrawable extends ObjectDrawable {
                           Text(
                             text,
                             textAlign: style.alignment,
+                            textScaleFactor: scale,
                             style: style.toTextStyle().copyWith(
                                   foreground: Paint()
                                     ..style = PaintingStyle.stroke
@@ -256,6 +255,7 @@ class TextDrawable extends ObjectDrawable {
                             text,
                             textAlign: style.alignment,
                             style: style.toTextStyle(),
+                            textScaleFactor: scale,
                           ),
                         ],
                       );

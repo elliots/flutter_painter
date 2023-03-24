@@ -72,6 +72,14 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
             body: SafeArea(
               child: Column(
                 children: [
+                  // Use an offstage widget to keep keyboard focus when switching between
+                  // the different style modes and input fields
+                  Offstage(
+                    child: TextField(
+                      controller: widget.textEditingController,
+                      focusNode: widget.textFieldNode,
+                    ),
+                  ),
                   Expanded(
                     child: ClipRect(
                       clipBehavior: Clip.hardEdge,
@@ -98,6 +106,7 @@ class EditTextWidgetUIState extends State<EditTextWidgetUI> with WidgetsBindingO
                   buildDoneRow(),
                   GestureDetector(
                     onTap: () {}, // Don't un-focus when tapping the bottom area
+                    behavior: HitTestBehavior.opaque, // Process clicks even though the background is transparent
                     child: Column(
                       children: [
                         const SizedBox(height: 16),
