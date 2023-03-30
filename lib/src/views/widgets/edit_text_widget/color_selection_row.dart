@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_painter/flutter_painter.dart';
 import 'package:flutter_painter/src/views/widgets/edit_text_widget/bouncing_click_listener.dart';
 
-// Todo improve
 List<Color> colorOptions = const [
   Color(0xFFFFFFFF),
   Color(0xFF000000),
@@ -15,19 +14,21 @@ List<Color> colorOptions = const [
   Color(0xFF3696F1),
   Color(0xFF2544B1),
   Color(0xFF5756D4),
+  Color(0xFFAB47BC),
+  Color(0xFFE91E63),
   Color(0xFFF9D7EA),
-  Color(0xFFA4895B),
-  Color(0xFF33523D),
   Color(0xFF31688D),
+  Color(0xFF607D8B),
+  Color(0xFF33523D),
+  Color(0xFFA4895B),
   Color(0xFF92969E),
-  Color(0xFF333333),
 ];
 
 List<Color> contrastColors = colorOptions.map((e) => e.getContrastColor()).toList();
 
 extension ContrastColor on Color {
   Color getContrastColor() {
-    final double relativeLuminance = this.computeLuminance();
+    final double relativeLuminance = computeLuminance();
 
     const double kThreshold = 0.15;
     if ((relativeLuminance + 0.05) * (relativeLuminance + 0.05) > kThreshold) {
