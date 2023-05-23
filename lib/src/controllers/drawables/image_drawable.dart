@@ -26,6 +26,7 @@ class ImageDrawable extends ObjectDrawable {
     bool hidden = false,
     required this.image,
     this.flipped = false,
+    bool rotatable = false,
     this.fillCanvas = false,
   }) : super(
             position: position,
@@ -34,7 +35,8 @@ class ImageDrawable extends ObjectDrawable {
             assists: assists,
             assistPaints: assistPaints,
             hidden: hidden,
-            locked: locked);
+            locked: locked,
+            rotatable: rotatable);
 
   /// Creates an [ImageDrawable] with the given [image], and calculates the scale based on the given [size].
   /// The scale will be calculated such that the size of the drawable fits into the provided size.
@@ -65,16 +67,16 @@ class ImageDrawable extends ObjectDrawable {
   /// Creates a copy of this but with the given fields replaced with the new values.
   @override
   ImageDrawable copyWith({
+    Offset? position,
     bool? hidden,
     Set<ObjectDrawableAssist>? assists,
-    Offset? position,
     double? rotation,
     double? scale,
     Image? image,
     bool? flipped,
     bool? locked,
     bool? fillCanvas,
-  }) {
+      bool? rotatable}) {
     return ImageDrawable(
       hidden: hidden ?? this.hidden,
       assists: assists ?? this.assists,
@@ -84,6 +86,7 @@ class ImageDrawable extends ObjectDrawable {
       image: image ?? this.image,
       flipped: flipped ?? this.flipped,
       locked: locked ?? this.locked,
+      rotatable: rotatable ?? this.rotatable,
       fillCanvas: fillCanvas ?? this.fillCanvas,
     );
   }

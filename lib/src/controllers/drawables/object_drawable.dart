@@ -53,6 +53,10 @@ abstract class ObjectDrawable extends Drawable {
   /// If it is locked, it won't be movable, scalable or re-sizable using the UI.
   final bool locked;
 
+  // Defines if the object drawable is rotatable of not
+  /// If it is set to false, it won't be rotatable using the UI.
+  final bool rotatable;
+
   /// Default constructor for [ObjectDrawable].
   const ObjectDrawable({
     required this.position,
@@ -61,6 +65,7 @@ abstract class ObjectDrawable extends Drawable {
     this.assists = const <ObjectDrawableAssist>{},
     this.assistPaints = const <ObjectDrawableAssist, Paint>{},
     this.locked = false,
+    this.rotatable = false,
     bool hidden = false,
   })  : scale = scale < minScale ? minScale : scale,
         super(hidden: hidden);

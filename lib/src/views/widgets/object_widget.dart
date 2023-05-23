@@ -646,7 +646,7 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
     final center = this.center;
 
     // The angle from [assistAngles] the object's current rotation is close
-    final double? closestAssistAngle;
+    double? closestAssistAngle;
 
     // If layout assist is enabled, calculate the positional and rotational assists
     if (settings.layoutAssist.enabled) {
@@ -670,6 +670,17 @@ class _ObjectWidgetState extends State<_ObjectWidget> {
     final assists = settings.layoutAssist.enabled
         ? assistDrawables.entries.where((element) => element.value.contains(index)).map((e) => e.key).toSet()
         : <ObjectDrawableAssist>{};
+
+    if (!initialDrawable.rotatable) {
+      print("not rotatable, locking to 0");
+      closestAssistAngle = 0;
+      assists.remove(ObjectDrawableAssist.rotation);
+      rotation = 0;
+    }
+    // } else {
+    //   print(
+    //       "rotatable, rotation $rotation, rclosestAssistAngle $closestAssistAngle");
+    // }
 
     // Do not display the rotational assist if the user is using less that 2 pointers
     // So, rotational assist lines won't show if the user is only moving the object
